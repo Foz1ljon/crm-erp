@@ -48,17 +48,32 @@ const { t } = useI18n()
 
 // Language names are shown in their own language regardless of the
 // currently active locale (e.g. "Русский" stays "Русский" even in English).
-const localeOptions: DropdownOption[] = SUPPORTED_LOCALES.map((l) => ({ label: l.label, key: l.code }))
+const localeOptions: DropdownOption[] = SUPPORTED_LOCALES.map((l) => ({
+  label: l.label,
+  key: l.code,
+}))
 
 function handleLocaleSelect(code: string) {
   setLocale(code as SupportedLocale)
 }
 
 const userMenuOptions = computed<DropdownOption[]>(() => [
-  { label: t('nav.settings'), key: '/settings', icon: () => h(NIcon, null, { default: () => h(UserCircle) }) },
-  { label: t('nav.switchWorkspace'), key: 'switch-workspace', icon: () => h(NIcon, null, { default: () => h(ArrowsLeftRight) }) },
+  {
+    label: t('nav.settings'),
+    key: '/settings',
+    icon: () => h(NIcon, null, { default: () => h(UserCircle) }),
+  },
+  {
+    label: t('nav.switchWorkspace'),
+    key: 'switch-workspace',
+    icon: () => h(NIcon, null, { default: () => h(ArrowsLeftRight) }),
+  },
   { type: 'divider', key: 'd1' },
-  { label: t('nav.logOut'), key: 'logout', icon: () => h(NIcon, null, { default: () => h(Logout) }) },
+  {
+    label: t('nav.logOut'),
+    key: 'logout',
+    icon: () => h(NIcon, null, { default: () => h(Logout) }),
+  },
 ])
 
 function handleUserMenuSelect(key: string) {
@@ -103,7 +118,11 @@ const menuOptions = computed<MenuOption[]>(() => {
       { label: t('nav.hr'), key: '/erp/hr', icon: renderIcon(IdBadge) },
       { label: t('nav.finance'), key: '/erp/finance', icon: renderIcon(ReportMoney) },
       { label: t('nav.suppliers'), key: '/erp/suppliers', icon: renderIcon(Building) },
-      { label: t('nav.purchaseOrders'), key: '/erp/purchase-orders', icon: renderIcon(ClipboardList) },
+      {
+        label: t('nav.purchaseOrders'),
+        key: '/erp/purchase-orders',
+        icon: renderIcon(ClipboardList),
+      },
       { label: t('nav.logistics'), key: '/erp/logistics', icon: renderIcon(Truck) },
     ],
   }
@@ -147,11 +166,21 @@ function handleMenuSelect(key: string) {
       @mouseenter="sidebarHovering = true"
       @mouseleave="sidebarHovering = false"
     >
-      <div class="flex h-14 items-center justify-center border-b border-[var(--n-border-color)] px-3">
-        <span v-if="!sidebarEffectivelyCollapsed" class="truncate text-sm font-semibold">{{ tenant.tenantName }}</span>
+      <div
+        class="flex h-14 items-center justify-center border-b border-[var(--n-border-color)] px-3"
+      >
+        <span v-if="!sidebarEffectivelyCollapsed" class="truncate text-sm font-semibold">{{
+          tenant.tenantName
+        }}</span>
         <span v-else class="text-sm font-semibold">{{ tenant.tenantName.charAt(0) }}</span>
       </div>
-      <NMenu :options="menuOptions" :value="activeKey" :collapsed="sidebarEffectivelyCollapsed" :collapsed-width="64" @update:value="handleMenuSelect" />
+      <NMenu
+        :options="menuOptions"
+        :value="activeKey"
+        :collapsed="sidebarEffectivelyCollapsed"
+        :collapsed-width="64"
+        @update:value="handleMenuSelect"
+      />
     </NLayoutSider>
 
     <NDrawer v-if="isCompact" v-model:show="mobileNavOpen" placement="left" :width="260">
@@ -163,21 +192,49 @@ function handleMenuSelect(key: string) {
     <NLayout>
       <NLayoutHeader bordered class="flex h-14 items-center justify-between gap-3 px-3 sm:px-4">
         <div class="flex items-center gap-2">
-          <NButton v-if="isCompact" quaternary circle :aria-label="t('nav.openMenu')" @click="mobileNavOpen = true">
-            <template #icon><NIcon><Menu2 /></NIcon></template>
+          <NButton
+            v-if="isCompact"
+            quaternary
+            circle
+            :aria-label="t('nav.openMenu')"
+            @click="mobileNavOpen = true"
+          >
+            <template #icon
+              ><NIcon><Menu2 /></NIcon
+            ></template>
           </NButton>
           <span class="text-base font-semibold">{{ tenant.tenantName }}</span>
         </div>
 
         <div class="flex items-center gap-2">
-          <NBadge :value="notifications.unreadCount" :show="notifications.unreadCount > 0" :max="99">
-            <NButton quaternary circle class="min-h-11 min-w-11" :aria-label="t('nav.notifications')" @click="router.push('/notifications')">
-              <template #icon><NIcon><Bell /></NIcon></template>
+          <NBadge
+            :value="notifications.unreadCount + 3"
+            :show="notifications.unreadCount > 0"
+            :max="99"
+            :offset="[-2, 6]"
+          >
+            <NButton
+              quaternary
+              circle
+              class="min-h-11 min-w-11"
+              :aria-label="t('nav.notifications')"
+              @click="router.push('/notifications')"
+            >
+              <template #icon
+                ><NIcon><Bell /></NIcon
+              ></template>
             </NButton>
           </NBadge>
           <NDropdown :options="localeOptions" trigger="click" @select="handleLocaleSelect">
-            <NButton quaternary circle class="min-h-11 min-w-11" :aria-label="t('nav.changeLanguage')">
-              <template #icon><NIcon><Language /></NIcon></template>
+            <NButton
+              quaternary
+              circle
+              class="min-h-11 min-w-11"
+              :aria-label="t('nav.changeLanguage')"
+            >
+              <template #icon
+                ><NIcon><Language /></NIcon
+              ></template>
             </NButton>
           </NDropdown>
           <NButton
@@ -192,7 +249,9 @@ function handleMenuSelect(key: string) {
             </template>
           </NButton>
           <NDropdown :options="userMenuOptions" trigger="click" @select="handleUserMenuSelect">
-            <NAvatar round size="small" class="cursor-pointer">{{ (auth.user?.name ?? 'U').charAt(0) }}</NAvatar>
+            <NAvatar round size="small" class="cursor-pointer">{{
+              (auth.user?.name ?? 'U').charAt(0)
+            }}</NAvatar>
           </NDropdown>
         </div>
       </NLayoutHeader>

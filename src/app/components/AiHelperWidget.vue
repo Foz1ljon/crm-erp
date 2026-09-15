@@ -19,6 +19,8 @@ async function scrollToBottom() {
 }
 
 watch(() => ai.messages.length, scrollToBottom)
+// Follow the text as it streams in (length stays constant, content grows).
+watch(() => ai.messages[ai.messages.length - 1]?.text, scrollToBottom)
 watch(() => ai.isPanelOpen, (open) => {
   if (open) scrollToBottom()
 })
@@ -29,7 +31,7 @@ function handleSend() {
   void ai.sendMessage(text)
 }
 
-const hasKey = computed(() => ai.apiKey.length > 0)
+const hasKey = computed(() => ai.hasKey)
 
 function goToSettings() {
   ai.isPanelOpen = false
@@ -38,16 +40,18 @@ function goToSettings() {
 </script>
 
 <template>
-  <NButton
-    circle
-    type="primary"
-    size="large"
-    class="fixed bottom-5 right-5 z-40 h-14 w-14 shadow-lg"
-    :aria-label="t('ai.openLabel')"
-    @click="ai.isPanelOpen = true"
-  >
-    <template #icon><NIcon size="22"><Robot /></NIcon></template>
-  </NButton>
+  <div class="fixed bottom-5 right-5 z-40">
+    <NButton
+      circle
+      type="primary"
+      size="large"
+      class="h-14 w-14 shadow-lg"
+      :aria-label="t('ai.openLabel')"
+      @click="ai.isPanelOpen = true"
+    >
+      <template #icon><NIcon size="22"><Robot /></NIcon></template>
+    </NButton>
+  </div>
 
   <NDrawer v-model:show="ai.isPanelOpen" placement="right" :width="420">
     <NDrawerContent :title="t('ai.title')" closable>
@@ -86,11 +90,9 @@ function goToSettings() {
                       : 'bg-surface-100 text-gray-800 dark:bg-surface-dark-200 dark:text-gray-100'
                 "
               >
-                {{ message.text }}
+                <span v-if="message.isStreaming && !message.text" class="text-gray-500 dark:text-gray-400">{{ t('ai.thinking') }}</span>
+                <template v-else>{{ message.text }}<span v-if="message.isStreaming" class="ai-caret" aria-hidden="true">▍</span></template>
               </div>
-            </div>
-            <div v-if="ai.isLoading" class="flex justify-start">
-              <div class="rounded-2xl bg-surface-100 px-3 py-2 text-sm text-gray-500 dark:bg-surface-dark-200 dark:text-gray-400">{{ t('ai.thinking') }}</div>
             </div>
           </div>
         </div>
@@ -122,3 +124,21 @@ function goToSettings() {
     </NDrawerContent>
   </NDrawer>
 </template>
+
+<style scoped>
+.ai-caret {
+  display: inline-block;
+  margin-left: 1px;
+  animation: ai-caret-blink 1s step-end infinite;
+}
+@keyframes ai-caret-blink {
+  50% {
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ai-caret {
+    animation: none;
+  }
+}
+</style>

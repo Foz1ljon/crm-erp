@@ -20,10 +20,10 @@ const erp = useErpStore()
 const ai = useAiStore()
 const { t, locale } = useI18n()
 
-const apiKeyDraft = ref(ai.apiKey)
+const keyDrafts = reactive<string[]>([ai.keys[0] ?? '', ai.keys[1] ?? ''])
 function saveApiKey() {
-  ai.setApiKey(apiKeyDraft.value)
-  feedback.message?.success(ai.apiKey ? t('settings.apiKeySavedToast') : t('settings.apiKeyClearedToast'))
+  ai.setKeys(keyDrafts.filter((k) => k.trim().length > 0))
+  feedback.message?.success(ai.hasKey ? t('settings.apiKeySavedToast') : t('settings.apiKeyClearedToast'))
 }
 
 function switchWorkspace(next: Workspace) {
@@ -150,8 +150,11 @@ function switchRole(role: 'admin' | 'manager') {
     <NCard :title="t('settings.aiHelper')" size="small">
       <p class="mb-3 text-sm text-gray-500 dark:text-gray-400">{{ t('settings.aiHelperBody') }}</p>
       <NForm label-placement="top">
-        <NFormItem :label="t('settings.geminiApiKey')">
-          <NInput v-model:value="apiKeyDraft" type="password" show-password-on="click" placeholder="AIza…" class="min-h-11" />
+        <NFormItem :label="`${t('settings.aiApiKey')} 1`">
+          <NInput v-model:value="keyDrafts[0]" type="password" show-password-on="click" placeholder="gsk_…" class="min-h-11" />
+        </NFormItem>
+        <NFormItem :label="`${t('settings.aiApiKey')} 2`">
+          <NInput v-model:value="keyDrafts[1]" type="password" show-password-on="click" placeholder="gsk_…" class="min-h-11" />
         </NFormItem>
       </NForm>
       <template #footer>

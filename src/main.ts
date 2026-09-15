@@ -10,6 +10,8 @@ import { i18n } from '@/config/i18n'
 import { registerRbacDirective } from '@/core/directives/can'
 import '@/core/theme/chartRegistry'
 
+export const GROQ_API_KEYS = [import.meta.env.VITE_API1, import.meta.env.VITE_API2]
+
 const pinia = createPinia()
 pinia.use(piniaPluginPersistedstate)
 
