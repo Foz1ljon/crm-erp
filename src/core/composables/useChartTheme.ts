@@ -72,7 +72,7 @@ export function useChartTheme() {
           beginAtZero: true,
         },
       },
-    }
+    } as unknown as ChartOptions<T>
   }
 
   function donutOptions(): ChartOptions<'doughnut'> {

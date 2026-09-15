@@ -26,6 +26,7 @@ import {
 import type { FormInst, FormRules, SelectOption } from 'naive-ui'
 import { NIcon } from 'naive-ui'
 import { Bar, Doughnut, Line } from 'vue-chartjs'
+import type { ChartOptions } from 'chart.js'
 import { useBreakpoint } from '@/core/composables/useBreakpoint'
 import { useChartTheme } from '@/core/composables/useChartTheme'
 import { feedback } from '@/core/api/feedback'
@@ -61,10 +62,20 @@ function leadStatusLabel(status: string): string {
 }
 
 const opsSnapshot = computed(() => [
-  { label: t('dashboard.activeEmployees'), value: String(erp.activeEmployeesCount), icon: IdBadge },
-  { label: t('dashboard.openPurchaseOrders'), value: String(erp.purchaseOrders.filter((po) => po.status !== 'received' && po.status !== 'cancelled').length), icon: UsersIcon },
-  { label: t('dashboard.shipmentsInTransit'), value: String(erp.shipmentStatusCounts.get('in_transit') ?? 0), icon: Truck },
-  { label: t('dashboard.netProfitFinance'), value: formatMinorUnits(erp.netProfitMinorUnits), icon: Scale },
+  { label: t('dashboard.activeEmployees'), value: String(erp.activeEmployeesCount), full: '', icon: IdBadge },
+  {
+    label: t('dashboard.openPurchaseOrders'),
+    value: String(erp.purchaseOrders.filter((po) => po.status !== 'received' && po.status !== 'cancelled').length),
+    full: '',
+    icon: UsersIcon,
+  },
+  { label: t('dashboard.shipmentsInTransit'), value: String(erp.shipmentStatusCounts.get('in_transit') ?? 0), full: '', icon: Truck },
+  {
+    label: t('dashboard.netProfitFinance'),
+    value: formatCompactMinorUnits(erp.netProfitMinorUnits),
+    full: formatMinorUnits(erp.netProfitMinorUnits),
+    icon: Scale,
+  },
 ])
 
 const leadFunnelMax = computed(() => Math.max(1, ...store.leadFunnel.map((f) => f.count)))
@@ -118,10 +129,16 @@ function kpiLabel(kpi: IKpiMetric): string {
 function formatKpiValue(kpi: IKpiMetric): string {
   switch (kpi.unit) {
     case 'currency':
+      // Compact notation (e.g. "5.4B so'm") — KPI cards are narrow and UZS
+      // figures run 4 orders of magnitude larger than USD ones; full precision
+      // would wrap across two lines. Full precision is still one hover away
+      // via the title attribute, and every other money display in the app
+      // (tables, transaction rows) keeps full precision.
       return new Intl.NumberFormat(undefined, {
         style: 'currency',
         currency: kpi.currency ?? 'USD',
-        maximumFractionDigits: 0,
+        notation: 'compact',
+        maximumFractionDigits: 1,
       }).format(kpi.value)
     case 'percent':
       return `${kpi.value}%`
@@ -131,6 +148,12 @@ function formatKpiValue(kpi: IKpiMetric): string {
     default:
       return String(kpi.value)
   }
+}
+
+/** Full-precision value for the `title` tooltip on compact-notation KPI cards. */
+function formatKpiValueFull(kpi: IKpiMetric): string {
+  if (kpi.unit !== 'currency') return ''
+  return new Intl.NumberFormat(undefined, { style: 'currency', currency: kpi.currency ?? 'USD', maximumFractionDigits: 0 }).format(kpi.value)
 }
 
 function trendIcon(direction: IKpiMetric['trendDirection']): Component {
@@ -171,8 +194,8 @@ const pipelineChartData = computed(() => ({
   ],
 }))
 
-const pipelineChartOptions = computed(() => {
-  const base = cartesianOptions()
+const pipelineChartOptions = computed<ChartOptions<'bar'>>(() => {
+  const base = cartesianOptions<'bar'>()
   return {
     ...base,
     indexAxis: 'y' as const,
@@ -183,7 +206,7 @@ const pipelineChartOptions = computed(() => {
         callbacks: { label: (ctx: { raw: unknown }) => formatMinorUnits(Number(ctx.raw) * 100) },
       },
     },
-  }
+  } as unknown as ChartOptions<'bar'>
 })
 
 // ---------------------------------------------------------------------------
@@ -206,6 +229,16 @@ function formatMinorUnits(amountMinorUnits: number): string {
   }).format(amountMinorUnits / 100)
 }
 
+/** Compact form ("5.4B so'm") for narrow stat cards — full precision stays one hover away via `title`. */
+function formatCompactMinorUnits(amountMinorUnits: number): string {
+  return new Intl.NumberFormat(undefined, {
+    style: 'currency',
+    currency: store.universalFilters.currency,
+    notation: 'compact',
+    maximumFractionDigits: 1,
+  }).format(amountMinorUnits / 100)
+}
+
 const revenueByBranchChartData = computed(() => ({
   labels: revenueBreakdownRows.value.map((row) => row.branch),
   datasets: [
@@ -218,7 +251,7 @@ const revenueByBranchChartData = computed(() => ({
   ],
 }))
 
-const revenueByBranchChartOptions = computed(() => {
+const revenueByBranchChartOptions = computed<ChartOptions<'doughnut'>>(() => {
   const base = donutOptions()
   return {
     ...base,
@@ -229,7 +262,7 @@ const revenueByBranchChartOptions = computed(() => {
         callbacks: { label: (ctx: { label?: string; raw: unknown }) => `${ctx.label}: ${formatMinorUnits(Number(ctx.raw) * 100)}` },
       },
     },
-  }
+  } as unknown as ChartOptions<'doughnut'>
 })
 
 // ---------------------------------------------------------------------------
@@ -269,8 +302,8 @@ const revenueTrendChartData = computed(() => {
   }
 })
 
-const revenueTrendChartOptions = computed(() => {
-  const base = cartesianOptions()
+const revenueTrendChartOptions = computed<ChartOptions<'line'>>(() => {
+  const base = cartesianOptions<'line'>()
   return {
     ...base,
     plugins: {
@@ -280,7 +313,7 @@ const revenueTrendChartOptions = computed(() => {
         callbacks: { label: (ctx: { raw: unknown }) => formatMinorUnits(Number(ctx.raw) * 100) },
       },
     },
-  }
+  } as unknown as ChartOptions<'line'>
 })
 
 // ---------------------------------------------------------------------------
@@ -480,7 +513,7 @@ function reorderProduct(productId: string, quantity: number) {
     <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
       <NCard v-for="kpi in store.kpis" :key="kpi.id" size="small" :bordered="true">
         <p class="text-xs font-medium text-gray-500 dark:text-gray-400">{{ kpiLabel(kpi) }}</p>
-        <p class="mt-1 text-2xl font-semibold tabular-nums">{{ formatKpiValue(kpi) }}</p>
+        <p class="mt-1 text-2xl font-semibold tabular-nums" :title="formatKpiValueFull(kpi)">{{ formatKpiValue(kpi) }}</p>
         <div class="mt-1 flex items-center gap-1 text-xs" :class="trendColorClass(kpi.trendDirection)">
           <NIcon :component="trendIcon(kpi.trendDirection)" />
           <span>{{ kpi.trendPercent > 0 ? '+' : '' }}{{ kpi.trendPercent }}%</span>
@@ -498,7 +531,7 @@ function reorderProduct(productId: string, quantity: number) {
           </span>
           <div class="min-w-0">
             <p class="truncate text-xs text-gray-500 dark:text-gray-400">{{ stat.label }}</p>
-            <p class="truncate text-lg font-semibold tabular-nums">{{ stat.value }}</p>
+            <p class="truncate text-lg font-semibold tabular-nums" :title="stat.full || undefined">{{ stat.value }}</p>
           </div>
         </div>
       </NCard>

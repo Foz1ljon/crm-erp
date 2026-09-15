@@ -4,6 +4,7 @@ import { useI18n } from 'vue-i18n'
 import { NButton, NIcon, NModal, NPopconfirm, NSelect, NTag, type DataTableColumns, type FormRules, type SelectOption } from 'naive-ui'
 import { ArrowDownRight, ArrowUpRight, Filter, Plus, Scale, Search, Trash } from '@vicons/tabler'
 import { Bar } from 'vue-chartjs'
+import type { ChartOptions } from 'chart.js'
 import { useBreakpoint } from '@/core/composables/useBreakpoint'
 import { useChartTheme } from '@/core/composables/useChartTheme'
 import { feedback } from '@/core/api/feedback'
@@ -81,8 +82,8 @@ const expenseByCategoryChartData = computed(() => {
   }
 })
 
-const financeChartOptions = computed(() => {
-  const base = cartesianOptions()
+const financeChartOptions = computed<ChartOptions<'bar'>>(() => {
+  const base = cartesianOptions<'bar'>()
   return {
     ...base,
     indexAxis: 'y' as const,
@@ -93,7 +94,7 @@ const financeChartOptions = computed(() => {
         callbacks: { label: (ctx: { raw: unknown }) => formatCurrency(Number(ctx.raw) * 100) },
       },
     },
-  }
+  } as unknown as ChartOptions<'bar'>
 })
 
 function handleDelete(transaction: ITransaction) {
