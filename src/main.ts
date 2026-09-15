@@ -10,7 +10,12 @@ import { i18n } from '@/config/i18n'
 import { registerRbacDirective } from '@/core/directives/can'
 import '@/core/theme/chartRegistry'
 
-export const GROQ_API_KEYS = [import.meta.env.VITE_API1, import.meta.env.VITE_API2]
+// Build-time key pool. Filtered here so a missing or blank .env entry never
+// reaches the store as `undefined` — `hasKey` calls `.trim()` on every entry
+// and would throw during render, taking the whole app down with it.
+export const GROQ_API_KEYS: string[] = [import.meta.env.VITE_API1, import.meta.env.VITE_API2]
+  .filter((key): key is string => typeof key === 'string' && key.trim().length > 0)
+  .map((key) => key.trim())
 
 const pinia = createPinia()
 pinia.use(piniaPluginPersistedstate)

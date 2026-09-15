@@ -85,6 +85,7 @@
     "liveWarningBody": "This reference build has no backend wired up yet. Switch back to Demo Mode to explore a fully populated dataset.",
     "allTime": "All time",
     "allBranches": "All branches",
+    "quickActions": "Actions",
     "newDeal": "New Deal",
     "newCustomer": "New Customer",
     "inventoryReorder": "Inventory Reorder",
@@ -516,6 +517,7 @@
     "close": "Close",
     "noKeyMessage": "No API key configured yet. Add one in Settings → AI Helper to start chatting.",
     "emptyResponseError": "The AI returned an empty response.",
+    "invalidKeyError": "The API key was rejected (invalid or revoked). Add a fresh Groq key under Settings → AI Assistant.",
     "requestFailedError": "AI request failed ({status})"
   }
 }

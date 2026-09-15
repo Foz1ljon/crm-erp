@@ -44,7 +44,7 @@ function handleRemove(notification: INotification) {
     <div class="flex items-center justify-between gap-3">
       <div>
         <h1 class="text-xl font-semibold">{{ t('notifications.title') }}</h1>
-        <p class="text-sm text-gray-500 dark:text-gray-400">{{ t('notifications.summary', { unread: store.unreadCount, total: store.notifications.length }) }}</p>
+        <p class="text-sm text-gray-600 dark:text-gray-400">{{ t('notifications.summary', { unread: store.unreadCount, total: store.notifications.length }) }}</p>
       </div>
       <NButton v-if="store.unreadCount > 0" class="min-h-11" @click="store.markAllRead()">
         <template #icon><NIcon><Check /></NIcon></template>
@@ -53,7 +53,7 @@ function handleRemove(notification: INotification) {
     </div>
 
     <div class="min-h-0 flex-1 overflow-y-auto">
-      <div v-if="store.sortedNotifications.length === 0" class="py-12 text-center text-sm text-gray-500 dark:text-gray-400">{{ t('notifications.caughtUp') }}</div>
+      <div v-if="store.sortedNotifications.length === 0" class="py-12 text-center text-sm text-gray-600 dark:text-gray-400">{{ t('notifications.caughtUp') }}</div>
       <ul v-else class="flex flex-col gap-2 pb-4">
         <li
           v-for="notification in store.sortedNotifications"
@@ -70,7 +70,7 @@ function handleRemove(notification: INotification) {
               <span v-if="!notification.isRead" class="h-2 w-2 shrink-0 rounded-full bg-brand-500" aria-hidden="true" />
             </div>
             <p class="mt-0.5 text-sm text-gray-600 dark:text-gray-300">{{ notification.message }}</p>
-            <div class="mt-1 flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+            <div class="mt-1 flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400">
               <span>{{ categoryLabel(notification.category) }}</span>
               <span aria-hidden="true">·</span>
               <span>{{ relativeTime(notification.createdAt) }}</span>

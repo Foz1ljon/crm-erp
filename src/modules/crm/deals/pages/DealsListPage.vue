@@ -26,7 +26,7 @@ function updateMobileSearch(value: string) {
     <div class="flex items-center justify-between gap-3">
       <div>
         <h1 class="text-xl font-semibold">Pipeline</h1>
-        <p class="text-sm text-gray-500 dark:text-gray-400">{{ store.total }} deals</p>
+        <p class="text-sm text-gray-600 dark:text-gray-400">{{ store.total }} deals</p>
       </div>
       <NButton v-can="'crm.deals.create'" type="primary" class="min-h-11">New Deal</NButton>
     </div>
@@ -63,7 +63,7 @@ function updateMobileSearch(value: string) {
     <!-- Mobile: card list, same data/store, no horizontal scroll -->
     <div v-else class="min-h-0 flex-1 overflow-y-auto">
       <NSpin :show="store.isLoading">
-        <div v-if="store.deals.length === 0 && !store.isLoading" class="py-12 text-center text-sm text-gray-500 dark:text-gray-400">
+        <div v-if="store.deals.length === 0 && !store.isLoading" class="py-12 text-center text-sm text-gray-600 dark:text-gray-400">
           No deals match these filters.
         </div>
         <div v-else class="flex flex-col gap-3 pb-4">

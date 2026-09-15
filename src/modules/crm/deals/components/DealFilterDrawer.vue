@@ -38,7 +38,7 @@ function handleReset() {
         <NFormItem label="Deal value" label-placement="top">
           <div class="flex items-center gap-2">
             <NInputNumber v-model:value="draft.valueMin" placeholder="Min" :min="0" class="flex-1" />
-            <span class="text-gray-400" aria-hidden="true">–</span>
+            <span class="text-gray-500" aria-hidden="true">–</span>
             <NInputNumber v-model:value="draft.valueMax" placeholder="Max" :min="0" class="flex-1" />
           </div>
         </NFormItem>

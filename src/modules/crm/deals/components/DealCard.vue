@@ -17,7 +17,7 @@ const closeDateLabel = new Intl.DateTimeFormat(undefined, { month: 'short', day:
     <div class="flex items-start justify-between gap-3">
       <div class="min-w-0">
         <p class="truncate text-sm font-semibold">{{ deal.name }}</p>
-        <p class="truncate text-xs text-gray-500 dark:text-gray-400">{{ deal.company.name }}</p>
+        <p class="truncate text-xs text-gray-600 dark:text-gray-400">{{ deal.company.name }}</p>
       </div>
       <NTag :type="stageTagType(deal.stage)" size="small" round class="shrink-0">
         {{ stageLabel(deal.stage) }}
@@ -26,7 +26,7 @@ const closeDateLabel = new Intl.DateTimeFormat(undefined, { month: 'short', day:
 
     <div class="mt-3 flex items-center justify-between">
       <span class="text-base font-semibold">{{ format(deal.value.amountMinorUnits, deal.value.currency) }}</span>
-      <span class="text-xs text-gray-500 dark:text-gray-400">Closes {{ closeDateLabel }}</span>
+      <span class="text-xs text-gray-600 dark:text-gray-400">Closes {{ closeDateLabel }}</span>
     </div>
 
     <div class="mt-3 flex items-center gap-2">
@@ -40,7 +40,7 @@ const closeDateLabel = new Intl.DateTimeFormat(undefined, { month: 'short', day:
         class="ml-auto w-20"
         :aria-label="`Win probability ${deal.probability}%`"
       />
-      <span class="w-9 shrink-0 text-right text-xs tabular-nums text-gray-500 dark:text-gray-400">{{ deal.probability }}%</span>
+      <span class="w-9 shrink-0 text-right text-xs tabular-nums text-gray-600 dark:text-gray-400">{{ deal.probability }}%</span>
     </div>
   </NCard>
 </template>

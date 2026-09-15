@@ -24,12 +24,18 @@ export const status = {
   info: '#2080f0',
 } as const
 
+/**
+ * Light neutrals sit one step deeper than Tailwind's slate-50/100/200 on
+ * purpose: against pure-white cards, slate-50 (#f8fafc) is a ~1% step and the
+ * whole UI reads as one flat white sheet. Cards keep #ffffff so the elevation
+ * difference is what carries the hierarchy.
+ */
 export const surfaceLight = {
   0: '#ffffff',
-  50: '#f8fafc',
-  100: '#f1f5f9',
-  200: '#e2e8f0',
-  border: '#e2e8f0',
+  50: '#eef1f6',
+  100: '#e3e8ef',
+  200: '#d4dbe5',
+  border: '#d8dee7',
 } as const
 
 export const surfaceDark = {

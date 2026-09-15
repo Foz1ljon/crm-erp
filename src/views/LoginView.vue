@@ -67,7 +67,7 @@ function quickLogin(role: 'admin' | 'manager') {
           <NIcon size="24"><LoginIcon /></NIcon>
         </div>
         <h1 class="text-lg font-semibold">{{ tenant.tenantName }}</h1>
-        <p class="text-sm text-gray-500 dark:text-gray-400">{{ t('login.subtitle') }}</p>
+        <p class="text-sm text-gray-600 dark:text-gray-400">{{ t('login.subtitle') }}</p>
       </div>
 
       <NForm ref="formRef" :model="form" :rules="rules" label-placement="top" @keyup.enter="handleSubmit">
@@ -86,7 +86,7 @@ function quickLogin(role: 'admin' | 'manager') {
         <NButton class="min-h-11 flex-1" @click="quickLogin('admin')">{{ t('login.demoAdmin') }}</NButton>
         <NButton class="min-h-11 flex-1" @click="quickLogin('manager')">{{ t('login.demoManager') }}</NButton>
       </div>
-      <p class="mt-3 text-center text-xs text-gray-500 dark:text-gray-400">{{ t('login.hint') }}</p>
+      <p class="mt-3 text-center text-xs text-gray-600 dark:text-gray-400">{{ t('login.hint') }}</p>
     </NCard>
   </div>
 </template>

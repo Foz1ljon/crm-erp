@@ -22,7 +22,7 @@ function choose(next: Workspace) {
     <div class="w-full max-w-2xl">
       <div class="mb-8 text-center">
         <h1 class="text-xl font-semibold">{{ tenant.tenantName }}</h1>
-        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ t('workspace.question') }}</p>
+        <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">{{ t('workspace.question') }}</p>
       </div>
 
       <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -35,7 +35,7 @@ function choose(next: Workspace) {
             <NIcon size="24"><Target /></NIcon>
           </div>
           <h2 class="mt-4 text-lg font-semibold">{{ t('workspace.crmTitle') }}</h2>
-          <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ t('workspace.crmDesc') }}</p>
+          <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">{{ t('workspace.crmDesc') }}</p>
         </button>
 
         <button
@@ -47,11 +47,11 @@ function choose(next: Workspace) {
             <NIcon size="24"><Building /></NIcon>
           </div>
           <h2 class="mt-4 text-lg font-semibold">{{ t('workspace.erpTitle') }}</h2>
-          <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ t('workspace.erpDesc') }}</p>
+          <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">{{ t('workspace.erpDesc') }}</p>
         </button>
       </div>
 
-      <p class="mt-6 text-center text-xs text-gray-500 dark:text-gray-400">{{ t('workspace.hint') }}</p>
+      <p class="mt-6 text-center text-xs text-gray-600 dark:text-gray-400">{{ t('workspace.hint') }}</p>
     </div>
   </div>
 </template>

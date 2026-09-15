@@ -51,7 +51,7 @@ const columns = computed<DataTableColumns<ISupplier>>(() => [
         h('span', { class: 'block truncate text-sm font-medium' }, row.name),
         h(
           'span',
-          { class: 'block truncate text-xs text-gray-500 dark:text-gray-400' },
+          { class: 'block truncate text-xs text-gray-600 dark:text-gray-400' },
           row.contactName,
         ),
       ]),
@@ -184,7 +184,7 @@ function submitCreate() {
     <div class="flex items-center justify-between gap-3">
       <div>
         <h1 class="text-xl font-semibold">{{ t('suppliers.title') }}</h1>
-        <p class="text-sm text-gray-500 dark:text-gray-400">
+        <p class="text-sm text-gray-600 dark:text-gray-400">
           {{
             t('suppliers.summary', {
               total: store.suppliersTotalCount,
@@ -248,7 +248,7 @@ function submitCreate() {
     <div v-else class="min-h-0 flex-1 overflow-y-auto">
       <div
         v-if="store.paginatedSuppliers.length === 0"
-        class="py-12 text-center text-sm text-gray-500 dark:text-gray-400"
+        class="py-12 text-center text-sm text-gray-600 dark:text-gray-400"
       >
         {{ t('suppliers.noMatch') }}
       </div>
@@ -263,7 +263,7 @@ function submitCreate() {
           <div class="flex items-start justify-between gap-3">
             <div class="min-w-0">
               <p class="truncate text-sm font-semibold">{{ supplier.name }}</p>
-              <p class="truncate text-xs text-gray-500 dark:text-gray-400">
+              <p class="truncate text-xs text-gray-600 dark:text-gray-400">
                 {{ supplier.contactName }} · {{ supplier.category }}
               </p>
             </div>
@@ -273,7 +273,7 @@ function submitCreate() {
           </div>
           <div class="mt-3 flex items-center justify-between">
             <NRate readonly :value="supplier.rating" size="small" />
-            <span class="text-xs text-gray-500 dark:text-gray-400">{{ supplier.branch }}</span>
+            <span class="text-xs text-gray-600 dark:text-gray-400">{{ supplier.branch }}</span>
           </div>
           <div
             class="mt-3 flex items-center justify-end gap-2 border-t border-surface-border pt-3 dark:border-surface-dark-border"

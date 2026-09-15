@@ -75,7 +75,7 @@ function goToSettings() {
         </div>
 
         <div ref="scrollRef" class="min-h-0 flex-1 overflow-y-auto pr-1">
-          <div v-if="ai.messages.length === 0" class="py-8 text-center text-sm text-gray-500 dark:text-gray-400">
+          <div v-if="ai.messages.length === 0" class="py-8 text-center text-sm text-gray-600 dark:text-gray-400">
             {{ t('ai.emptyState') }}
           </div>
           <div v-else class="flex flex-col gap-3">
@@ -90,7 +90,7 @@ function goToSettings() {
                       : 'bg-surface-100 text-gray-800 dark:bg-surface-dark-200 dark:text-gray-100'
                 "
               >
-                <span v-if="message.isStreaming && !message.text" class="text-gray-500 dark:text-gray-400">{{ t('ai.thinking') }}</span>
+                <span v-if="message.isStreaming && !message.text" class="text-gray-600 dark:text-gray-400">{{ t('ai.thinking') }}</span>
                 <template v-else>{{ message.text }}<span v-if="message.isStreaming" class="ai-caret" aria-hidden="true">▍</span></template>
               </div>
             </div>
@@ -113,7 +113,7 @@ function goToSettings() {
       </div>
 
       <template #footer>
-        <div class="flex w-full items-center justify-between text-xs text-gray-400">
+        <div class="flex w-full items-center justify-between text-xs text-gray-500">
           <span>{{ t('ai.poweredBy') }}</span>
           <NButton quaternary size="tiny" @click="ai.isPanelOpen = false">
             <template #icon><NIcon><X /></NIcon></template>

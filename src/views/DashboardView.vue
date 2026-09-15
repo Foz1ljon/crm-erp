@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, reactive, ref, type Component } from 'vue'
+import { computed, h, reactive, ref, type Component } from 'vue'
 import { useI18n } from 'vue-i18n'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
@@ -9,7 +9,6 @@ import 'dayjs/locale/uz-latn'
 import {
   ArrowDownRight,
   ArrowUpRight,
-  IdBadge,
   Mail,
   MinusVertical,
   Notes,
@@ -18,20 +17,16 @@ import {
   Plus,
   ReceiptRefund,
   RefreshAlert,
-  Scale,
-  Truck,
   UserPlus,
   Users as UsersIcon,
 } from '@vicons/tabler'
-import type { FormInst, FormRules, SelectOption } from 'naive-ui'
+import type { DropdownOption, FormInst, FormRules, SelectOption } from 'naive-ui'
 import { NIcon } from 'naive-ui'
-import { Bar, Doughnut, Line } from 'vue-chartjs'
+import { Bar, Line } from 'vue-chartjs'
 import type { ChartOptions } from 'chart.js'
-import { useBreakpoint } from '@/core/composables/useBreakpoint'
 import { useChartTheme } from '@/core/composables/useChartTheme'
 import { feedback } from '@/core/api/feedback'
 import { useCrmStore, type DataMode } from '@/stores/useCrmStore'
-import { useErpStore } from '@/stores/useErpStore'
 import {
   BRANCHES,
   CURRENCIES,
@@ -46,10 +41,8 @@ import {
 dayjs.extend(relativeTime)
 
 const store = useCrmStore()
-const erp = useErpStore()
-const { isCompact } = useBreakpoint()
 const { t, locale } = useI18n()
-const { categorical, sequential, cartesianOptions, donutOptions } = useChartTheme()
+const { sequential, cartesianOptions } = useChartTheme()
 
 const DAYJS_LOCALE_MAP: Record<string, string> = { en: 'en', uz: 'uz-latn', 'uz-Cyrl': 'uz', ru: 'ru' }
 
@@ -57,28 +50,9 @@ function stageLabel(stage: DealStage): string {
   return t(`deals.stages.${stage}`)
 }
 
-function leadStatusLabel(status: string): string {
-  return t(`leads.statuses.${status}`)
+function renderIcon(component: Component) {
+  return () => h(NIcon, null, { default: () => h(component) })
 }
-
-const opsSnapshot = computed(() => [
-  { label: t('dashboard.activeEmployees'), value: String(erp.activeEmployeesCount), full: '', icon: IdBadge },
-  {
-    label: t('dashboard.openPurchaseOrders'),
-    value: String(erp.purchaseOrders.filter((po) => po.status !== 'received' && po.status !== 'cancelled').length),
-    full: '',
-    icon: UsersIcon,
-  },
-  { label: t('dashboard.shipmentsInTransit'), value: String(erp.shipmentStatusCounts.get('in_transit') ?? 0), full: '', icon: Truck },
-  {
-    label: t('dashboard.netProfitFinance'),
-    value: formatCompactMinorUnits(erp.netProfitMinorUnits),
-    full: formatMinorUnits(erp.netProfitMinorUnits),
-    icon: Scale,
-  },
-])
-
-const leadFunnelMax = computed(() => Math.max(1, ...store.leadFunnel.map((f) => f.count)))
 
 // ---------------------------------------------------------------------------
 // Universal filter bar
@@ -119,8 +93,19 @@ const isLiveMode = computed({
 })
 
 // ---------------------------------------------------------------------------
-// KPI card formatting
+// KPI cards
 // ---------------------------------------------------------------------------
+
+/**
+ * The dashboard is an overview, not a report: it carries the four headline
+ * numbers only. `inventory-turnover` stays in the store and on the Inventory
+ * page, where the stock context that explains it already lives.
+ */
+const HEADLINE_KPI_IDS = ['revenue', 'active-deals', 'conversion-rate', 'churn-rate']
+
+const headlineKpis = computed<IKpiMetric[]>(() =>
+  HEADLINE_KPI_IDS.map((id) => store.kpis.find((kpi) => kpi.id === id)).filter((kpi): kpi is IKpiMetric => Boolean(kpi)),
+)
 
 function kpiLabel(kpi: IKpiMetric): string {
   return t(`dashboard.kpis.${kpi.id}`)
@@ -165,61 +150,8 @@ function trendIcon(direction: IKpiMetric['trendDirection']): Component {
 function trendColorClass(direction: IKpiMetric['trendDirection']) {
   if (direction === 'up') return 'text-emerald-600 dark:text-emerald-400'
   if (direction === 'down') return 'text-red-600 dark:text-red-400'
-  return 'text-gray-500 dark:text-gray-400'
+  return 'text-gray-600 dark:text-gray-400'
 }
-
-// ---------------------------------------------------------------------------
-// Pipeline progression widget
-// ---------------------------------------------------------------------------
-
-const pipelineRows = computed(() => {
-  const stageEntries = DEAL_STAGES.map((stage) => ({
-    stage,
-    ...(store.pipelineByStage.get(stage) ?? { count: 0, amountMinorUnits: 0 }),
-  }))
-  const max = Math.max(1, ...stageEntries.map((e) => e.amountMinorUnits))
-  return stageEntries.map((entry) => ({ ...entry, widthPercent: Math.round((entry.amountMinorUnits / max) * 100) }))
-})
-
-const pipelineChartData = computed(() => ({
-  labels: pipelineRows.value.map((row) => stageLabel(row.stage)),
-  datasets: [
-    {
-      label: t('dashboard.salesPipeline'),
-      data: pipelineRows.value.map((row) => row.amountMinorUnits / 100),
-      backgroundColor: sequential.value,
-      borderRadius: 4,
-      maxBarThickness: 36,
-    },
-  ],
-}))
-
-const pipelineChartOptions = computed<ChartOptions<'bar'>>(() => {
-  const base = cartesianOptions<'bar'>()
-  return {
-    ...base,
-    indexAxis: 'y' as const,
-    plugins: {
-      ...base.plugins,
-      tooltip: {
-        ...base.plugins?.tooltip,
-        callbacks: { label: (ctx: { raw: unknown }) => formatMinorUnits(Number(ctx.raw) * 100) },
-      },
-    },
-  } as unknown as ChartOptions<'bar'>
-})
-
-// ---------------------------------------------------------------------------
-// Revenue breakdown widget
-// ---------------------------------------------------------------------------
-
-const revenueBreakdownRows = computed(() => {
-  const rows = BRANCHES.map((branch) => ({ branch, amountMinorUnits: store.revenueByBranch.get(branch) ?? 0 }))
-  const total = rows.reduce((sum, r) => sum + r.amountMinorUnits, 0)
-  return rows
-    .map((row) => ({ ...row, sharePercent: total === 0 ? 0 : Math.round((row.amountMinorUnits / total) * 100) }))
-    .sort((a, b) => b.amountMinorUnits - a.amountMinorUnits)
-})
 
 function formatMinorUnits(amountMinorUnits: number): string {
   return new Intl.NumberFormat(undefined, {
@@ -229,44 +161,8 @@ function formatMinorUnits(amountMinorUnits: number): string {
   }).format(amountMinorUnits / 100)
 }
 
-/** Compact form ("5.4B so'm") for narrow stat cards — full precision stays one hover away via `title`. */
-function formatCompactMinorUnits(amountMinorUnits: number): string {
-  return new Intl.NumberFormat(undefined, {
-    style: 'currency',
-    currency: store.universalFilters.currency,
-    notation: 'compact',
-    maximumFractionDigits: 1,
-  }).format(amountMinorUnits / 100)
-}
-
-const revenueByBranchChartData = computed(() => ({
-  labels: revenueBreakdownRows.value.map((row) => row.branch),
-  datasets: [
-    {
-      data: revenueBreakdownRows.value.map((row) => row.amountMinorUnits / 100),
-      backgroundColor: categorical.value,
-      borderColor: 'transparent',
-      hoverOffset: 6,
-    },
-  ],
-}))
-
-const revenueByBranchChartOptions = computed<ChartOptions<'doughnut'>>(() => {
-  const base = donutOptions()
-  return {
-    ...base,
-    plugins: {
-      ...base.plugins,
-      tooltip: {
-        ...base.plugins?.tooltip,
-        callbacks: { label: (ctx: { label?: string; raw: unknown }) => `${ctx.label}: ${formatMinorUnits(Number(ctx.raw) * 100)}` },
-      },
-    },
-  } as unknown as ChartOptions<'doughnut'>
-})
-
 // ---------------------------------------------------------------------------
-// Revenue trend widget (won deals, last 6 months by creation date)
+// Revenue trend (won deals, last 6 months by creation date)
 // ---------------------------------------------------------------------------
 
 const revenueTrendChartData = computed(() => {
@@ -317,6 +213,45 @@ const revenueTrendChartOptions = computed<ChartOptions<'line'>>(() => {
 })
 
 // ---------------------------------------------------------------------------
+// Pipeline progression widget
+// ---------------------------------------------------------------------------
+
+const pipelineRows = computed(() =>
+  DEAL_STAGES.map((stage) => ({
+    stage,
+    ...(store.pipelineByStage.get(stage) ?? { count: 0, amountMinorUnits: 0 }),
+  })),
+)
+
+const pipelineChartData = computed(() => ({
+  labels: pipelineRows.value.map((row) => stageLabel(row.stage)),
+  datasets: [
+    {
+      label: t('dashboard.salesPipeline'),
+      data: pipelineRows.value.map((row) => row.amountMinorUnits / 100),
+      backgroundColor: sequential.value,
+      borderRadius: 4,
+      maxBarThickness: 36,
+    },
+  ],
+}))
+
+const pipelineChartOptions = computed<ChartOptions<'bar'>>(() => {
+  const base = cartesianOptions<'bar'>()
+  return {
+    ...base,
+    indexAxis: 'y' as const,
+    plugins: {
+      ...base.plugins,
+      tooltip: {
+        ...base.plugins?.tooltip,
+        callbacks: { label: (ctx: { raw: unknown }) => formatMinorUnits(Number(ctx.raw) * 100) },
+      },
+    },
+  } as unknown as ChartOptions<'bar'>
+})
+
+// ---------------------------------------------------------------------------
 // Recent activity feed
 // ---------------------------------------------------------------------------
 
@@ -343,10 +278,36 @@ function relativeTimeLabel(iso: string): string {
 }
 
 // ---------------------------------------------------------------------------
-// Quick actions: New Deal
+// Quick actions — one menu in the header instead of a row of buttons
 // ---------------------------------------------------------------------------
 
 const newDealModalOpen = ref(false)
+const newCustomerModalOpen = ref(false)
+const reorderModalOpen = ref(false)
+
+const quickActionOptions = computed<DropdownOption[]>(() => {
+  const lowStock = store.lowStockProducts.length
+  return [
+    { label: t('dashboard.newDeal'), key: 'deal', icon: renderIcon(Plus) },
+    { label: t('dashboard.newCustomer'), key: 'customer', icon: renderIcon(UserPlus) },
+    {
+      label: lowStock > 0 ? `${t('dashboard.inventoryReorder')} (${lowStock})` : t('dashboard.inventoryReorder'),
+      key: 'reorder',
+      icon: renderIcon(Package),
+    },
+  ]
+})
+
+function handleQuickAction(key: string) {
+  if (key === 'deal') newDealModalOpen.value = true
+  else if (key === 'customer') newCustomerModalOpen.value = true
+  else if (key === 'reorder') reorderModalOpen.value = true
+}
+
+// ---------------------------------------------------------------------------
+// Quick actions: New Deal
+// ---------------------------------------------------------------------------
+
 const dealFormRef = ref<FormInst | null>(null)
 const dealForm = reactive({
   title: '',
@@ -414,7 +375,6 @@ function submitNewDeal() {
 // Quick actions: New Customer
 // ---------------------------------------------------------------------------
 
-const newCustomerModalOpen = ref(false)
 const customerFormRef = ref<FormInst | null>(null)
 const customerForm = reactive({
   name: '',
@@ -459,8 +419,6 @@ function submitNewCustomer() {
 // Quick actions: Reorder low-stock inventory
 // ---------------------------------------------------------------------------
 
-const reorderModalOpen = ref(false)
-
 function reorderProduct(productId: string, quantity: number) {
   store.adjustStock(productId, quantity)
   feedback.message?.success(t('dashboard.reorderRecordedToast'))
@@ -468,16 +426,29 @@ function reorderProduct(productId: string, quantity: number) {
 </script>
 
 <template>
-  <div class="flex flex-col gap-5">
-    <!-- Header -->
+  <div class="mx-auto flex w-full max-w-6xl flex-col gap-5">
+    <!-- Header: title, data mode, and the single quick-action menu -->
     <div class="flex flex-wrap items-center justify-between gap-3">
       <div>
         <h1 class="text-xl font-semibold">{{ t('dashboard.title') }}</h1>
-        <p class="text-sm text-gray-500 dark:text-gray-400">{{ t('dashboard.subtitle') }}</p>
+        <p class="text-sm text-gray-600 dark:text-gray-400">{{ t('dashboard.subtitle') }}</p>
       </div>
       <div class="flex items-center gap-3">
-        <span class="text-sm text-gray-500 dark:text-gray-400">{{ isLiveMode ? t('dashboard.liveMode') : t('dashboard.demoMode') }}</span>
+        <span class="text-sm text-gray-600 dark:text-gray-400">{{ isLiveMode ? t('dashboard.liveMode') : t('dashboard.demoMode') }}</span>
         <NSwitch v-model:value="isLiveMode" :aria-label="t('dashboard.demoMode')" />
+        <NBadge
+          :value="store.lowStockProducts.length"
+          :show="store.lowStockProducts.length > 0"
+          :max="99"
+          :offset="[-4, 4]"
+        >
+          <NDropdown :options="quickActionOptions" trigger="click" @select="handleQuickAction">
+            <NButton type="primary" class="min-h-11">
+              <template #icon><NIcon><Plus /></NIcon></template>
+              {{ t('dashboard.quickActions') }}
+            </NButton>
+          </NDropdown>
+        </NBadge>
       </div>
     </div>
 
@@ -486,53 +457,21 @@ function reorderProduct(productId: string, quantity: number) {
     </NAlert>
 
     <!-- Universal filter bar -->
-    <div class="flex flex-wrap items-center gap-3 rounded-lg border border-surface-border bg-white p-3 dark:border-surface-dark-border dark:bg-surface-dark-100">
+    <div class="flex flex-wrap items-center gap-3">
       <NDatePicker v-model:value="dateRangeModel" type="daterange" clearable class="w-full sm:w-64" :placeholder="t('dashboard.allTime')" />
       <NSelect v-model:value="branchModel" :options="branchOptions" class="w-full sm:w-48" :aria-label="t('common.branch')" />
       <NSelect v-model:value="currencyModel" :options="currencyOptions" class="w-full sm:w-40" :aria-label="t('dashboard.currency')" />
     </div>
 
-    <!-- Quick actions -->
-    <div class="flex flex-wrap gap-2">
-      <NButton type="primary" class="min-h-11" @click="newDealModalOpen = true">
-        <template #icon><NIcon><Plus /></NIcon></template>
-        {{ t('dashboard.newDeal') }}
-      </NButton>
-      <NButton class="min-h-11" @click="newCustomerModalOpen = true">
-        <template #icon><NIcon><UserPlus /></NIcon></template>
-        {{ t('dashboard.newCustomer') }}
-      </NButton>
-      <NButton class="min-h-11" @click="reorderModalOpen = true">
-        <template #icon><NIcon><Package /></NIcon></template>
-        {{ t('dashboard.inventoryReorder') }}
-        <NBadge v-if="store.lowStockProducts.length > 0" :value="store.lowStockProducts.length" class="ml-2" />
-      </NButton>
-    </div>
-
-    <!-- KPI metric cards -->
-    <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
-      <NCard v-for="kpi in store.kpis" :key="kpi.id" size="small" :bordered="true">
-        <p class="text-xs font-medium text-gray-500 dark:text-gray-400">{{ kpiLabel(kpi) }}</p>
+    <!-- Headline KPIs -->
+    <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <NCard v-for="kpi in headlineKpis" :key="kpi.id" size="small" :bordered="true">
+        <p class="text-xs font-medium text-gray-600 dark:text-gray-400">{{ kpiLabel(kpi) }}</p>
         <p class="mt-1 text-2xl font-semibold tabular-nums" :title="formatKpiValueFull(kpi)">{{ formatKpiValue(kpi) }}</p>
         <div class="mt-1 flex items-center gap-1 text-xs" :class="trendColorClass(kpi.trendDirection)">
           <NIcon :component="trendIcon(kpi.trendDirection)" />
           <span>{{ kpi.trendPercent > 0 ? '+' : '' }}{{ kpi.trendPercent }}%</span>
-          <span class="text-gray-400 dark:text-gray-500">{{ t('dashboard.vsLastMonth') }}</span>
-        </div>
-      </NCard>
-    </div>
-
-    <!-- Ops snapshot: cross-module ERP summary -->
-    <div class="grid grid-cols-2 gap-3 lg:grid-cols-4">
-      <NCard v-for="stat in opsSnapshot" :key="stat.label" size="small" :bordered="true">
-        <div class="flex items-center gap-3">
-          <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-50 text-brand-600 dark:bg-brand-900/30 dark:text-brand-300">
-            <NIcon :component="stat.icon" :size="18" />
-          </span>
-          <div class="min-w-0">
-            <p class="truncate text-xs text-gray-500 dark:text-gray-400">{{ stat.label }}</p>
-            <p class="truncate text-lg font-semibold tabular-nums" :title="stat.full || undefined">{{ stat.value }}</p>
-          </div>
+          <span class="text-gray-500 dark:text-gray-500">{{ t('dashboard.vsLastMonth') }}</span>
         </div>
       </NCard>
     </div>
@@ -544,36 +483,16 @@ function reorderProduct(productId: string, quantity: number) {
       </div>
     </NCard>
 
-    <!-- Widgets: desktop 2-column, mobile stacked -->
-    <div class="grid grid-cols-1 gap-4" :class="!isCompact ? 'lg:grid-cols-2' : ''">
+    <!-- Pipeline + activity: desktop 2-column, mobile stacked -->
+    <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
       <NCard :title="t('dashboard.salesPipeline')" size="small" :bordered="true">
         <div class="h-64">
           <Bar :data="pipelineChartData" :options="pipelineChartOptions" />
         </div>
       </NCard>
 
-      <NCard :title="t('dashboard.revenueByBranch')" size="small" :bordered="true">
-        <div class="h-64">
-          <Doughnut :data="revenueByBranchChartData" :options="revenueByBranchChartOptions" />
-        </div>
-      </NCard>
-
-      <NCard :title="t('dashboard.leadFunnel')" size="small" :bordered="true">
-        <div class="flex flex-col gap-3">
-          <div v-for="stage in store.leadFunnel" :key="stage.status">
-            <div class="mb-1 flex items-center justify-between text-sm">
-              <span class="font-medium">{{ leadStatusLabel(stage.status) }}</span>
-              <span class="tabular-nums text-gray-500 dark:text-gray-400">{{ stage.count }}</span>
-            </div>
-            <div class="h-2 w-full overflow-hidden rounded-full bg-surface-100 dark:bg-surface-dark-200">
-              <div class="h-full rounded-full bg-brand-600" :style="{ width: `${(stage.count / leadFunnelMax) * 100}%` }" />
-            </div>
-          </div>
-        </div>
-      </NCard>
-
       <NCard :title="t('dashboard.recentActivity')" size="small" :bordered="true">
-        <div v-if="store.recentActivities.length === 0" class="py-6 text-center text-sm text-gray-500 dark:text-gray-400">
+        <div v-if="store.recentActivities.length === 0" class="py-6 text-center text-sm text-gray-600 dark:text-gray-400">
           {{ t('dashboard.noRecentActivity') }}
         </div>
         <ul v-else class="flex flex-col divide-y divide-surface-border dark:divide-surface-dark-border">
@@ -583,7 +502,7 @@ function reorderProduct(productId: string, quantity: number) {
             </span>
             <div class="min-w-0 flex-1">
               <p class="truncate text-sm">{{ activity.message }}</p>
-              <p class="text-xs text-gray-500 dark:text-gray-400">{{ activity.actor }} · {{ relativeTimeLabel(activity.createdAt) }}</p>
+              <p class="text-xs text-gray-600 dark:text-gray-400">{{ activity.actor }} · {{ relativeTimeLabel(activity.createdAt) }}</p>
             </div>
           </li>
         </ul>
@@ -651,14 +570,14 @@ function reorderProduct(productId: string, quantity: number) {
 
     <!-- Modal: Inventory Reorder -->
     <NModal v-model:show="reorderModalOpen" preset="card" :title="t('dashboard.reorderModalTitle')" class="w-full max-w-lg">
-      <div v-if="store.lowStockProducts.length === 0" class="py-6 text-center text-sm text-gray-500 dark:text-gray-400">
+      <div v-if="store.lowStockProducts.length === 0" class="py-6 text-center text-sm text-gray-600 dark:text-gray-400">
         {{ t('dashboard.nothingToReorder') }}
       </div>
       <ul v-else class="flex flex-col divide-y divide-surface-border dark:divide-surface-dark-border">
         <li v-for="product in store.lowStockProducts" :key="product.id" class="flex items-center justify-between gap-3 py-3">
           <div class="min-w-0">
             <p class="truncate text-sm font-medium">{{ product.name }}</p>
-            <p class="text-xs text-gray-500 dark:text-gray-400">
+            <p class="text-xs text-gray-600 dark:text-gray-400">
               {{ product.sku }} · {{ t('inventory.onHand', { count: product.stockOnHand }) }} · {{ t('dashboard.reorderAt', { threshold: product.reorderThreshold }) }}
             </p>
           </div>

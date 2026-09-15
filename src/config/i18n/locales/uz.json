@@ -85,6 +85,7 @@
     "liveWarningBody": "Bu namunaviy loyihada hali backend ulanmagan. To'liq to'ldirilgan ma'lumotlarni ko'rish uchun Demo rejimga qayting.",
     "allTime": "Barcha vaqt",
     "allBranches": "Barcha filiallar",
+    "quickActions": "Amallar",
     "newDeal": "Yangi bitim",
     "newCustomer": "Yangi mijoz",
     "inventoryReorder": "Ombor uchun buyurtma",
@@ -516,6 +517,7 @@
     "close": "Yopish",
     "noKeyMessage": "API kaliti hali sozlanmagan. Suhbatni boshlash uchun Sozlamalar → AI Yordamchi bo'limida kalit qo'shing.",
     "emptyResponseError": "AI bo'sh javob qaytardi.",
+    "invalidKeyError": "API kaliti rad etildi (yaroqsiz yoki bekor qilingan). Sozlamalar → AI Yordamchi bo'limida yangi Groq kalitini kiriting.",
     "requestFailedError": "AI so'rovi bajarilmadi ({status})"
   }
 }

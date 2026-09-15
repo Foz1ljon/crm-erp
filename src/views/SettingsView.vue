@@ -93,7 +93,7 @@ function switchRole(role: 'admin' | 'manager') {
   <div class="flex h-full flex-col gap-6 overflow-y-auto pb-6">
     <div>
       <h1 class="text-xl font-semibold">{{ t('settings.title') }}</h1>
-      <p class="text-sm text-gray-500 dark:text-gray-400">{{ t('settings.subtitle') }}</p>
+      <p class="text-sm text-gray-600 dark:text-gray-400">{{ t('settings.subtitle') }}</p>
     </div>
 
     <NCard :title="t('settings.profile')" size="small">
@@ -107,7 +107,7 @@ function switchRole(role: 'admin' | 'manager') {
     </NCard>
 
     <NCard :title="t('settings.role')" size="small">
-      <p class="mb-3 text-sm text-gray-500 dark:text-gray-400">
+      <p class="mb-3 text-sm text-gray-600 dark:text-gray-400">
         {{ t('settings.roleBody', { role: auth.user?.roles[0] === 'admin' ? t('settings.admin') : t('settings.manager') }) }}
       </p>
       <div class="flex gap-3">
@@ -138,7 +138,7 @@ function switchRole(role: 'admin' | 'manager') {
     </NCard>
 
     <NCard :title="t('settings.workspace')" size="small">
-      <p class="mb-3 text-sm text-gray-500 dark:text-gray-400">
+      <p class="mb-3 text-sm text-gray-600 dark:text-gray-400">
         {{ t('settings.workspaceBody', { workspace: workspace.workspace === 'crm' ? 'CRM' : 'ERP' }) }}
       </p>
       <div class="flex gap-3">
@@ -148,7 +148,7 @@ function switchRole(role: 'admin' | 'manager') {
     </NCard>
 
     <NCard :title="t('settings.aiHelper')" size="small">
-      <p class="mb-3 text-sm text-gray-500 dark:text-gray-400">{{ t('settings.aiHelperBody') }}</p>
+      <p class="mb-3 text-sm text-gray-600 dark:text-gray-400">{{ t('settings.aiHelperBody') }}</p>
       <NForm label-placement="top">
         <NFormItem :label="`${t('settings.aiApiKey')} 1`">
           <NInput v-model:value="keyDrafts[0]" type="password" show-password-on="click" placeholder="gsk_…" class="min-h-11" />
@@ -166,7 +166,7 @@ function switchRole(role: 'admin' | 'manager') {
       <div class="flex items-center justify-between">
         <div>
           <p class="text-sm font-medium">{{ t('settings.demoModeLabel') }}</p>
-          <p class="text-sm text-gray-500 dark:text-gray-400">
+          <p class="text-sm text-gray-600 dark:text-gray-400">
             {{ demoMode ? t('settings.demoModeOn') : t('settings.demoModeOff') }}
           </p>
         </div>

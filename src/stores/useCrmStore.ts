@@ -89,7 +89,11 @@ export const useCrmStore = defineStore(
     // -------------------------------------------------------------------
     // Universal filter bar (Dashboard + inherited by domain views)
     // -------------------------------------------------------------------
-    const universalFilters = ref<UniversalFilters>({ dateRange: null, branch: null, currency: 'UZS' })
+    const universalFilters = ref<UniversalFilters>({
+      dateRange: null,
+      branch: null,
+      currency: 'UZS',
+    })
 
     function setUniversalFilters(next: Partial<UniversalFilters>) {
       universalFilters.value = { ...universalFilters.value, ...next }
@@ -107,9 +111,15 @@ export const useCrmStore = defineStore(
     }
 
     /** Deals within the universal (branch/date-range) scope — the shared base every dashboard widget and KPI reads from. */
-    const universallyFilteredDeals = computed(() => deals.value.filter((deal) => inBranch(deal.branch) && inDateRange(deal.createdAt)))
-    const universallyFilteredCustomers = computed(() => customers.value.filter((c) => inBranch(c.branch)))
-    const universallyFilteredProducts = computed(() => products.value.filter((p) => inBranch(p.branch)))
+    const universallyFilteredDeals = computed(() =>
+      deals.value.filter((deal) => inBranch(deal.branch) && inDateRange(deal.createdAt)),
+    )
+    const universallyFilteredCustomers = computed(() =>
+      customers.value.filter((c) => inBranch(c.branch)),
+    )
+    const universallyFilteredProducts = computed(() =>
+      products.value.filter((p) => inBranch(p.branch)),
+    )
 
     function toDisplayCurrency(amountMinorUnits: number, from: CurrencyCode): number {
       return convertMinorUnits(amountMinorUnits, from, universalFilters.value.currency)
@@ -123,7 +133,9 @@ export const useCrmStore = defineStore(
     const dealPage = ref(1)
     const dealPageSize = ref(10)
 
-    const dealOwners = computed(() => Array.from(new Set(deals.value.map((deal) => deal.owner))).sort())
+    const dealOwners = computed(() =>
+      Array.from(new Set(deals.value.map((deal) => deal.owner))).sort(),
+    )
 
     const activeDealFilterCount = computed(() => {
       const f = dealFilters.value
@@ -163,7 +175,11 @@ export const useCrmStore = defineStore(
       const f = dealFilters.value
       const needle = f.search.trim().toLowerCase()
       return universallyFilteredDeals.value.filter((deal) => {
-        if (needle && !`${deal.title} ${deal.customerName} ${deal.owner}`.toLowerCase().includes(needle)) return false
+        if (
+          needle &&
+          !`${deal.title} ${deal.customerName} ${deal.owner}`.toLowerCase().includes(needle)
+        )
+          return false
         if (f.stages.length > 0 && !f.stages.includes(deal.stage)) return false
         if (f.owners.length > 0 && !f.owners.includes(deal.owner)) return false
         const amountInBase = toDisplayCurrency(deal.amountMinorUnits, deal.currency) / 100
@@ -179,19 +195,28 @@ export const useCrmStore = defineStore(
       return [...dealsMatchingFilters.value].sort((a, b) => {
         switch (sortBy) {
           case 'amountMinorUnits':
-            return (toDisplayCurrency(a.amountMinorUnits, a.currency) - toDisplayCurrency(b.amountMinorUnits, b.currency)) * direction
+            return (
+              (toDisplayCurrency(a.amountMinorUnits, a.currency) -
+                toDisplayCurrency(b.amountMinorUnits, b.currency)) *
+              direction
+            )
           case 'title':
             return a.title.localeCompare(b.title) * direction
           case 'stage':
             return a.stage.localeCompare(b.stage) * direction
           case 'expectedCloseDate':
           default:
-            return (new Date(a.expectedCloseDate).getTime() - new Date(b.expectedCloseDate).getTime()) * direction
+            return (
+              (new Date(a.expectedCloseDate).getTime() - new Date(b.expectedCloseDate).getTime()) *
+              direction
+            )
         }
       })
     })
 
-    const dealsPageCount = computed(() => Math.max(1, Math.ceil(sortedFilteredDeals.value.length / dealPageSize.value)))
+    const dealsPageCount = computed(() =>
+      Math.max(1, Math.ceil(sortedFilteredDeals.value.length / dealPageSize.value)),
+    )
 
     const paginatedDeals = computed(() => {
       const start = (dealPage.value - 1) * dealPageSize.value
@@ -254,7 +279,11 @@ export const useCrmStore = defineStore(
       if (index === -1) return
       const existing = products.value[index]
       if (!existing) return
-      products.value.splice(index, 1, { ...existing, ...patch, updatedAt: new Date().toISOString() })
+      products.value.splice(index, 1, {
+        ...existing,
+        ...patch,
+        updatedAt: new Date().toISOString(),
+      })
     }
 
     function adjustStock(id: string, delta: number) {
@@ -274,7 +303,9 @@ export const useCrmStore = defineStore(
     const productPage = ref(1)
     const productPageSize = ref(10)
 
-    const productCategoryOptions = computed(() => Array.from(new Set(products.value.map((p) => p.category))).sort())
+    const productCategoryOptions = computed(() =>
+      Array.from(new Set(products.value.map((p) => p.category))).sort(),
+    )
 
     const activeProductFilterCount = computed(() => {
       const f = productFilters.value
@@ -304,14 +335,20 @@ export const useCrmStore = defineStore(
       const f = productFilters.value
       const needle = f.search.trim().toLowerCase()
       return universallyFilteredProducts.value.filter((product) => {
-        if (needle && !`${product.name} ${product.sku} ${product.warehouse}`.toLowerCase().includes(needle)) return false
+        if (
+          needle &&
+          !`${product.name} ${product.sku} ${product.warehouse}`.toLowerCase().includes(needle)
+        )
+          return false
         if (f.categories.length > 0 && !f.categories.includes(product.category)) return false
         if (f.lowStockOnly && product.stockOnHand > product.reorderThreshold) return false
         return true
       })
     })
 
-    const productsPageCount = computed(() => Math.max(1, Math.ceil(productsMatchingFilters.value.length / productPageSize.value)))
+    const productsPageCount = computed(() =>
+      Math.max(1, Math.ceil(productsMatchingFilters.value.length / productPageSize.value)),
+    )
 
     const paginatedProducts = computed(() => {
       const start = (productPage.value - 1) * productPageSize.value
@@ -325,7 +362,9 @@ export const useCrmStore = defineStore(
     const leadPage = ref(1)
     const leadPageSize = ref(10)
 
-    const leadOwners = computed(() => Array.from(new Set(leads.value.map((lead) => lead.owner))).sort())
+    const leadOwners = computed(() =>
+      Array.from(new Set(leads.value.map((lead) => lead.owner))).sort(),
+    )
 
     const activeLeadFilterCount = computed(() => {
       const f = leadFilters.value
@@ -356,7 +395,11 @@ export const useCrmStore = defineStore(
       const needle = f.search.trim().toLowerCase()
       return leads.value
         .filter((lead) => {
-          if (needle && !`${lead.name} ${lead.company} ${lead.email}`.toLowerCase().includes(needle)) return false
+          if (
+            needle &&
+            !`${lead.name} ${lead.company} ${lead.email}`.toLowerCase().includes(needle)
+          )
+            return false
           if (f.statuses.length > 0 && !f.statuses.includes(lead.status)) return false
           if (f.sources.length > 0 && !f.sources.includes(lead.source)) return false
           if (f.owners.length > 0 && !f.owners.includes(lead.owner)) return false
@@ -365,7 +408,9 @@ export const useCrmStore = defineStore(
         .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
     })
 
-    const leadsPageCount = computed(() => Math.max(1, Math.ceil(leadsMatchingFilters.value.length / leadPageSize.value)))
+    const leadsPageCount = computed(() =>
+      Math.max(1, Math.ceil(leadsMatchingFilters.value.length / leadPageSize.value)),
+    )
 
     const paginatedLeads = computed(() => {
       const start = (leadPage.value - 1) * leadPageSize.value
@@ -412,7 +457,15 @@ export const useCrmStore = defineStore(
         status: 'active',
         owner: lead.owner,
         branch: lead.branch,
-        contacts: [{ id: `contact-${Date.now()}`, name: lead.name, email: lead.email, phone: lead.phone, role: 'Primary Contact' }],
+        contacts: [
+          {
+            id: `contact-${Date.now()}`,
+            name: lead.name,
+            email: lead.email,
+            phone: lead.phone,
+            role: 'Primary Contact',
+          },
+        ],
         lifetimeValueMinorUnits: lead.estimatedValueMinorUnits,
         currency: lead.currency,
         tags: ['converted-lead'],
@@ -460,15 +513,25 @@ export const useCrmStore = defineStore(
       const needle = f.search.trim().toLowerCase()
       return contacts.value
         .filter((contact) => {
-          if (needle && !`${contact.name} ${contact.customerName} ${contact.role} ${contact.email}`.toLowerCase().includes(needle)) return false
+          if (
+            needle &&
+            !`${contact.name} ${contact.customerName} ${contact.role} ${contact.email}`
+              .toLowerCase()
+              .includes(needle)
+          )
+            return false
           if (f.customerIds.length > 0 && !f.customerIds.includes(contact.customerId)) return false
           if (f.primaryOnly && !contact.isPrimary) return false
           return true
         })
-        .sort((a, b) => new Date(b.lastContactedAt).getTime() - new Date(a.lastContactedAt).getTime())
+        .sort(
+          (a, b) => new Date(b.lastContactedAt).getTime() - new Date(a.lastContactedAt).getTime(),
+        )
     })
 
-    const contactsPageCount = computed(() => Math.max(1, Math.ceil(contactsMatchingFilters.value.length / contactPageSize.value)))
+    const contactsPageCount = computed(() =>
+      Math.max(1, Math.ceil(contactsMatchingFilters.value.length / contactPageSize.value)),
+    )
 
     const paginatedContacts = computed(() => {
       const start = (contactPage.value - 1) * contactPageSize.value
@@ -505,7 +568,10 @@ export const useCrmStore = defineStore(
     // -------------------------------------------------------------------
     // Analytics: KPIs, pipeline, revenue breakdown, alerts
     // -------------------------------------------------------------------
-    function trend(current: number, previous: number): Pick<IKpiMetric, 'trendPercent' | 'trendDirection'> {
+    function trend(
+      current: number,
+      previous: number,
+    ): Pick<IKpiMetric, 'trendPercent' | 'trendDirection'> {
       if (previous === 0) return { trendPercent: 0, trendDirection: 'flat' }
       const percent = ((current - previous) / previous) * 100
       const direction = percent > 0.5 ? 'up' : percent < -0.5 ? 'down' : 'flat'
@@ -522,17 +588,32 @@ export const useCrmStore = defineStore(
     const kpis = computed<IKpiMetric[]>(() => {
       const won = universallyFilteredDeals.value.filter((d) => d.stage === 'closed_won')
       const lost = universallyFilteredDeals.value.filter((d) => d.stage === 'closed_lost')
-      const revenue = won.reduce((sum, d) => sum + toDisplayCurrency(d.amountMinorUnits, d.currency), 0)
-      const activeDeals = universallyFilteredDeals.value.filter((d) => OPEN_DEAL_STAGES.includes(d.stage)).length
+      const revenue = won.reduce(
+        (sum, d) => sum + toDisplayCurrency(d.amountMinorUnits, d.currency),
+        0,
+      )
+      const activeDeals = universallyFilteredDeals.value.filter((d) =>
+        OPEN_DEAL_STAGES.includes(d.stage),
+      ).length
       const decided = won.length + lost.length
       const conversionRate = decided === 0 ? 0 : (won.length / decided) * 100
       const inventoryValue = totalInventoryValueMinorUnits.value
-      const inventoryTurnover = inventoryValue === 0 ? 0 : Math.round((revenue / inventoryValue) * 10) / 10
-      const churned = universallyFilteredCustomers.value.filter((c) => c.lifecycleStage === 'churned').length
-      const churnRate = universallyFilteredCustomers.value.length === 0 ? 0 : (churned / universallyFilteredCustomers.value.length) * 100
+      const inventoryTurnover =
+        inventoryValue === 0 ? 0 : Math.round((revenue / inventoryValue) * 10) / 10
+      const churned = universallyFilteredCustomers.value.filter(
+        (c) => c.lifecycleStage === 'churned',
+      ).length
+      const churnRate =
+        universallyFilteredCustomers.value.length === 0
+          ? 0
+          : (churned / universallyFilteredCustomers.value.length) * 100
 
       const baseline = PREVIOUS_PERIOD_BASELINE
-      const revenueBaseline = convertMinorUnits(baseline.revenueMinorUnitsUsd, 'USD', universalFilters.value.currency)
+      const revenueBaseline = convertMinorUnits(
+        baseline.revenueMinorUnitsUsd,
+        'USD',
+        universalFilters.value.currency,
+      )
 
       return [
         {
@@ -594,15 +675,20 @@ export const useCrmStore = defineStore(
       const totals = new Map<Branch, number>()
       for (const deal of universallyFilteredDeals.value) {
         if (deal.stage !== 'closed_won') continue
-        totals.set(deal.branch, (totals.get(deal.branch) ?? 0) + toDisplayCurrency(deal.amountMinorUnits, deal.currency))
+        totals.set(
+          deal.branch,
+          (totals.get(deal.branch) ?? 0) + toDisplayCurrency(deal.amountMinorUnits, deal.currency),
+        )
       }
       return totals
     })
 
-    const recentActivities = computed(() => activities.value.slice(0, 12))
+    const recentActivities = computed(() => activities.value.slice(0, 3))
 
     const lowStockProducts = computed(() =>
-      universallyFilteredProducts.value.filter((p) => p.stockOnHand <= p.reorderThreshold).sort((a, b) => a.stockOnHand - b.stockOnHand),
+      universallyFilteredProducts.value
+        .filter((p) => p.stockOnHand <= p.reorderThreshold)
+        .sort((a, b) => a.stockOnHand - b.stockOnHand),
     )
 
     return {

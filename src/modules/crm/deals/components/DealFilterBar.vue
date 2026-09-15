@@ -66,7 +66,7 @@ function updateValueMax(value: number | null) {
         aria-label="Minimum deal value"
         @update:value="updateValueMin"
       />
-      <span class="text-sm text-gray-400" aria-hidden="true">–</span>
+      <span class="text-sm text-gray-500" aria-hidden="true">–</span>
       <NInputNumber
         :value="store.filters.valueMax"
         placeholder="Max value"

@@ -77,7 +77,7 @@ const columns = computed<DataTableColumns<IProduct>>(() => [
         h('span', { class: 'block truncate text-sm font-medium' }, row.name),
         h(
           'span',
-          { class: 'block truncate text-xs text-gray-500 dark:text-gray-400' },
+          { class: 'block truncate text-xs text-gray-600 dark:text-gray-400' },
           `${row.sku} · ${row.warehouse}`,
         ),
       ]),
@@ -258,7 +258,7 @@ function submitCreate() {
     <div class="flex items-center justify-between gap-3">
       <div>
         <h1 class="text-xl font-semibold">{{ t('inventory.title') }}</h1>
-        <p class="text-sm text-gray-500 dark:text-gray-400">
+        <p class="text-sm text-gray-600 dark:text-gray-400">
           {{
             t('common.matching', {
               count: store.productsTotalCount,
@@ -322,7 +322,7 @@ function submitCreate() {
     <div v-else class="min-h-0 flex-1 overflow-y-auto">
       <div
         v-if="store.paginatedProducts.length === 0"
-        class="py-12 text-center text-sm text-gray-500 dark:text-gray-400"
+        class="py-12 text-center text-sm text-gray-600 dark:text-gray-400"
       >
         {{ t('inventory.noMatch') }}
       </div>
@@ -337,7 +337,7 @@ function submitCreate() {
           <div class="flex items-start justify-between gap-3">
             <div class="min-w-0">
               <p class="truncate text-sm font-semibold">{{ product.name }}</p>
-              <p class="truncate text-xs text-gray-500 dark:text-gray-400">
+              <p class="truncate text-xs text-gray-600 dark:text-gray-400">
                 {{ product.sku }} · {{ product.warehouse }}
               </p>
             </div>
@@ -352,7 +352,7 @@ function submitCreate() {
 
           <div class="mt-3 flex items-center justify-between">
             <span class="text-base font-semibold">{{ formatPrice(product) }}</span>
-            <span class="text-xs text-gray-500 dark:text-gray-400">{{
+            <span class="text-xs text-gray-600 dark:text-gray-400">{{
               categoryLabel(product.category)
             }}</span>
           </div>

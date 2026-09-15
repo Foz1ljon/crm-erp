@@ -44,8 +44,12 @@ function stageTagType(stage: DealStage): 'default' | 'info' | 'warning' | 'succe
   }
 }
 
-const stageOptions = computed<SelectOption[]>(() => DEAL_STAGES.map((stage) => ({ label: stageLabel(stage), value: stage })))
-const stageDropdownOptions = computed<DropdownOption[]>(() => DEAL_STAGES.map((stage) => ({ label: stageLabel(stage), key: stage })))
+const stageOptions = computed<SelectOption[]>(() =>
+  DEAL_STAGES.map((stage) => ({ label: stageLabel(stage), value: stage })),
+)
+const stageDropdownOptions = computed<DropdownOption[]>(() =>
+  DEAL_STAGES.map((stage) => ({ label: stageLabel(stage), key: stage })),
+)
 
 function formatAmount(deal: IDeal): string {
   const amount = store.toDisplayCurrency(deal.amountMinorUnits, deal.currency)
@@ -56,7 +60,11 @@ function formatAmount(deal: IDeal): string {
   }).format(amount / 100)
 }
 
-const dateFormatter = new Intl.DateTimeFormat(undefined, { month: 'short', day: 'numeric', year: 'numeric' })
+const dateFormatter = new Intl.DateTimeFormat(undefined, {
+  month: 'short',
+  day: 'numeric',
+  year: 'numeric',
+})
 
 function handleDelete(deal: IDeal) {
   store.removeDeal(deal.id)
@@ -77,11 +85,16 @@ const columns = computed<DataTableColumns<IDeal>>(() => [
     title: t('deals.deal'),
     key: 'title',
     sorter: true,
-    minWidth: 220,
+    minWidth: 200,
+    width: 200,
     render: (row) =>
       h('div', { class: 'min-w-0' }, [
         h('span', { class: 'block truncate text-sm font-medium' }, row.title),
-        h('span', { class: 'block truncate text-xs text-gray-500 dark:text-gray-400' }, row.customerName),
+        h(
+          'span',
+          { class: 'block truncate text-xs text-gray-600 dark:text-gray-400' },
+          row.customerName,
+        ),
       ]),
   },
   { title: t('common.owner'), key: 'owner', width: 160 },
@@ -102,7 +115,12 @@ const columns = computed<DataTableColumns<IDeal>>(() => [
           default: () =>
             h(
               NTag,
-              { type: stageTagType(row.stage), size: 'small', round: true, style: { cursor: 'pointer' } },
+              {
+                type: stageTagType(row.stage),
+                size: 'small',
+                round: true,
+                style: { cursor: 'pointer' },
+              },
               { default: () => stageLabel(row.stage) },
             ),
         },
@@ -122,8 +140,18 @@ const columns = computed<DataTableColumns<IDeal>>(() => [
     width: 150,
     render: (row) =>
       h('div', { class: 'flex items-center gap-2' }, [
-        h(NProgress, { type: 'line', percentage: row.probability, height: 6, showIndicator: false, style: { width: '64px' } }),
-        h('span', { class: 'w-9 text-right text-xs tabular-nums text-gray-500 dark:text-gray-400' }, `${row.probability}%`),
+        h(NProgress, {
+          type: 'line',
+          percentage: row.probability,
+          height: 6,
+          showIndicator: false,
+          style: { width: '64px' },
+        }),
+        h(
+          'span',
+          { class: 'w-9 text-right text-xs tabular-nums text-gray-600 dark:text-gray-400' },
+          `${row.probability}%`,
+        ),
       ]),
   },
   {
@@ -143,7 +171,16 @@ const columns = computed<DataTableColumns<IDeal>>(() => [
         { onPositiveClick: () => handleDelete(row) },
         {
           trigger: () =>
-            h(NButton, { quaternary: true, circle: true, size: 'small', 'aria-label': `${t('common.delete')} ${row.title}` }, { icon: () => h(NIcon, null, { default: () => h(Trash) }) }),
+            h(
+              NButton,
+              {
+                quaternary: true,
+                circle: true,
+                size: 'small',
+                'aria-label': `${t('common.delete')} ${row.title}`,
+              },
+              { icon: () => h(NIcon, null, { default: () => h(Trash) }) },
+            ),
           default: () => t('common.deleteConfirm', { name: row.title }),
         },
       ),
@@ -152,7 +189,10 @@ const columns = computed<DataTableColumns<IDeal>>(() => [
 
 function handleSorterChange(sorter: DataTableSortState | DataTableSortState[] | null) {
   if (!sorter || Array.isArray(sorter) || sorter.order === false) return
-  store.setDealSort(sorter.columnKey as typeof store.dealSort.sortBy, sorter.order === 'ascend' ? 'asc' : 'desc')
+  store.setDealSort(
+    sorter.columnKey as typeof store.dealSort.sortBy,
+    sorter.order === 'ascend' ? 'asc' : 'desc',
+  )
 }
 
 const pagination = computed(() => ({
@@ -178,7 +218,9 @@ watch(
   { deep: true },
 )
 
-const ownerOptions = computed<SelectOption[]>(() => store.dealOwners.map((owner) => ({ label: owner, value: owner })))
+const ownerOptions = computed<SelectOption[]>(() =>
+  store.dealOwners.map((owner) => ({ label: owner, value: owner })),
+)
 
 function applyFilters() {
   store.setDealFilters({ ...draft })
@@ -200,7 +242,14 @@ function updateQuickSearch(value: string) {
     <div class="flex items-center justify-between gap-3">
       <div>
         <h1 class="text-xl font-semibold">{{ t('deals.title') }}</h1>
-        <p class="text-sm text-gray-500 dark:text-gray-400">{{ t('common.matching', { count: store.dealsTotalCount, item: t('deals.title').toLowerCase() }) }}</p>
+        <p class="text-sm text-gray-600 dark:text-gray-400">
+          {{
+            t('common.matching', {
+              count: store.dealsTotalCount,
+              item: t('deals.title').toLowerCase(),
+            })
+          }}
+        </p>
       </div>
     </div>
 
@@ -213,11 +262,19 @@ function updateQuickSearch(value: string) {
         :aria-label="t('common.search')"
         @update:value="updateQuickSearch"
       >
-        <template #prefix><NIcon><Search /></NIcon></template>
+        <template #prefix
+          ><NIcon><Search /></NIcon
+        ></template>
       </NInput>
       <NBadge :value="store.activeDealFilterCount" :show="store.activeDealFilterCount > 0">
-        <NButton class="min-h-11 min-w-11" :aria-label="t('deals.advancedFilters')" @click="filterDrawerOpen = true">
-          <template #icon><NIcon><Filter /></NIcon></template>
+        <NButton
+          class="min-h-11 min-w-11"
+          :aria-label="t('deals.advancedFilters')"
+          @click="filterDrawerOpen = true"
+        >
+          <template #icon
+            ><NIcon><Filter /></NIcon
+          ></template>
         </NButton>
       </NBadge>
     </div>
@@ -239,31 +296,57 @@ function updateQuickSearch(value: string) {
 
     <!-- Mobile: card list -->
     <div v-else class="min-h-0 flex-1 overflow-y-auto">
-      <div v-if="store.paginatedDeals.length === 0" class="py-12 text-center text-sm text-gray-500 dark:text-gray-400">
+      <div
+        v-if="store.paginatedDeals.length === 0"
+        class="py-12 text-center text-sm text-gray-600 dark:text-gray-400"
+      >
         {{ t('deals.noMatch') }}
       </div>
       <div v-else class="flex flex-col gap-3 pb-4">
-        <NCard v-for="deal in store.paginatedDeals" :key="deal.id" size="small" :bordered="true" content-style="padding: 14px;">
+        <NCard
+          v-for="deal in store.paginatedDeals"
+          :key="deal.id"
+          size="small"
+          :bordered="true"
+          content-style="padding: 14px;"
+        >
           <div class="flex items-start justify-between gap-3">
             <div class="min-w-0">
               <p class="truncate text-sm font-semibold">{{ deal.title }}</p>
-              <p class="truncate text-xs text-gray-500 dark:text-gray-400">{{ deal.customerName }}</p>
+              <p class="truncate text-xs text-gray-600 dark:text-gray-400">
+                {{ deal.customerName }}
+              </p>
             </div>
-            <NTag :type="stageTagType(deal.stage)" size="small" round class="shrink-0">{{ stageLabel(deal.stage) }}</NTag>
+            <NTag :type="stageTagType(deal.stage)" size="small" round class="shrink-0">{{
+              stageLabel(deal.stage)
+            }}</NTag>
           </div>
 
           <div class="mt-3 flex items-center justify-between">
             <span class="text-base font-semibold">{{ formatAmount(deal) }}</span>
-            <span class="text-xs text-gray-500 dark:text-gray-400">{{ dateFormatter.format(new Date(deal.expectedCloseDate)) }}</span>
+            <span class="text-xs text-gray-600 dark:text-gray-400">{{
+              dateFormatter.format(new Date(deal.expectedCloseDate))
+            }}</span>
           </div>
 
           <div class="mt-3 flex items-center gap-2">
             <span class="truncate text-xs text-gray-600 dark:text-gray-300">{{ deal.owner }}</span>
-            <NProgress type="line" :percentage="deal.probability" :height="6" :show-indicator="false" class="ml-auto w-20" />
-            <span class="w-9 shrink-0 text-right text-xs tabular-nums text-gray-500 dark:text-gray-400">{{ deal.probability }}%</span>
+            <NProgress
+              type="line"
+              :percentage="deal.probability"
+              :height="6"
+              :show-indicator="false"
+              class="ml-auto w-20"
+            />
+            <span
+              class="w-9 shrink-0 text-right text-xs tabular-nums text-gray-600 dark:text-gray-400"
+              >{{ deal.probability }}%</span
+            >
           </div>
 
-          <div class="mt-3 flex items-center justify-between gap-2 border-t border-surface-border pt-3 dark:border-surface-dark-border">
+          <div
+            class="mt-3 flex items-center justify-between gap-2 border-t border-surface-border pt-3 dark:border-surface-dark-border"
+          >
             <NSelect
               :value="deal.stage"
               :options="stageOptions"
@@ -274,8 +357,15 @@ function updateQuickSearch(value: string) {
             />
             <NPopconfirm @positive-click="() => handleDelete(deal)">
               <template #trigger>
-                <NButton quaternary circle class="min-h-11 min-w-11" :aria-label="`${t('common.delete')} ${deal.title}`">
-                  <template #icon><NIcon><Trash /></NIcon></template>
+                <NButton
+                  quaternary
+                  circle
+                  class="min-h-11 min-w-11"
+                  :aria-label="`${t('common.delete')} ${deal.title}`"
+                >
+                  <template #icon
+                    ><NIcon><Trash /></NIcon
+                  ></template>
                 </NButton>
               </template>
               {{ t('common.deleteConfirm', { name: deal.title }) }}
@@ -299,26 +389,51 @@ function updateQuickSearch(value: string) {
       <NDrawerContent :title="t('deals.advancedFilters')" closable>
         <div class="flex flex-col gap-5 pb-4">
           <NFormItem :label="t('common.search')" label-placement="top">
-            <NInput v-model:value="draft.search" :placeholder="t('deals.searchPlaceholder')" clearable />
+            <NInput
+              v-model:value="draft.search"
+              :placeholder="t('deals.searchPlaceholder')"
+              clearable
+            />
           </NFormItem>
 
           <NFormItem :label="t('deals.filter.stage')" label-placement="top">
             <NCheckboxGroup v-model:value="draft.stages">
               <div class="flex flex-col gap-3">
-                <NCheckbox v-for="option in stageOptions" :key="option.value as string" :value="option.value" :label="option.label as string" class="min-h-11" />
+                <NCheckbox
+                  v-for="option in stageOptions"
+                  :key="option.value as string"
+                  :value="option.value"
+                  :label="option.label as string"
+                  class="min-h-11"
+                />
               </div>
             </NCheckboxGroup>
           </NFormItem>
 
           <NFormItem :label="t('deals.filter.owner')" label-placement="top">
-            <NSelect v-model:value="draft.owners" :options="ownerOptions" multiple :placeholder="t('common.any')" />
+            <NSelect
+              v-model:value="draft.owners"
+              :options="ownerOptions"
+              multiple
+              :placeholder="t('common.any')"
+            />
           </NFormItem>
 
           <NFormItem :label="t('deals.filter.valueRange')" label-placement="top">
             <div class="flex items-center gap-2">
-              <NInputNumber v-model:value="draft.amountMin" placeholder="Min" :min="0" class="flex-1" />
-              <span class="text-gray-400" aria-hidden="true">–</span>
-              <NInputNumber v-model:value="draft.amountMax" placeholder="Max" :min="0" class="flex-1" />
+              <NInputNumber
+                v-model:value="draft.amountMin"
+                placeholder="Min"
+                :min="0"
+                class="flex-1"
+              />
+              <span class="text-gray-500" aria-hidden="true">–</span>
+              <NInputNumber
+                v-model:value="draft.amountMax"
+                placeholder="Max"
+                :min="0"
+                class="flex-1"
+              />
             </div>
           </NFormItem>
         </div>
@@ -326,7 +441,9 @@ function updateQuickSearch(value: string) {
         <template #footer>
           <div class="flex w-full gap-3">
             <NButton class="min-h-11 flex-1" @click="resetFilters">{{ t('common.reset') }}</NButton>
-            <NButton class="min-h-11 flex-1" type="primary" @click="applyFilters">{{ t('common.apply') }}</NButton>
+            <NButton class="min-h-11 flex-1" type="primary" @click="applyFilters">{{
+              t('common.apply')
+            }}</NButton>
           </div>
         </template>
       </NDrawerContent>

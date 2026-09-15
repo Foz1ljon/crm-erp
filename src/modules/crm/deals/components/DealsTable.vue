@@ -20,7 +20,7 @@ const columns: DataTableColumns<Deal> = [
     render: (row) =>
       h('div', { class: 'min-w-0' }, [
         h(NEllipsis, { class: 'block text-sm font-medium' }, { default: () => row.name }),
-        h('span', { class: 'block truncate text-xs text-gray-500 dark:text-gray-400' }, row.company.name),
+        h('span', { class: 'block truncate text-xs text-gray-600 dark:text-gray-400' }, row.company.name),
       ]),
   },
   {
@@ -61,7 +61,7 @@ const columns: DataTableColumns<Deal> = [
           style: { width: '64px' },
           'aria-label': `Win probability ${row.probability}%`,
         }),
-        h('span', { class: 'w-9 text-right text-xs tabular-nums text-gray-500 dark:text-gray-400' }, `${row.probability}%`),
+        h('span', { class: 'w-9 text-right text-xs tabular-nums text-gray-600 dark:text-gray-400' }, `${row.probability}%`),
       ]),
   },
   {

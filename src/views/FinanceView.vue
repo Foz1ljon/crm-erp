@@ -112,7 +112,7 @@ const columns = computed<DataTableColumns<ITransaction>>(() => [
         h(NIcon, { class: row.type === 'income' ? 'text-success' : 'text-error', size: 18 }, { default: () => h(row.type === 'income' ? ArrowUpRight : ArrowDownRight) }),
         h('div', { class: 'min-w-0' }, [
           h('span', { class: 'block truncate text-sm font-medium' }, row.description),
-          h('span', { class: 'block truncate text-xs text-gray-500 dark:text-gray-400' }, row.createdBy),
+          h('span', { class: 'block truncate text-xs text-gray-600 dark:text-gray-400' }, row.createdBy),
         ]),
       ]),
   },
@@ -223,7 +223,7 @@ function submitCreate() {
     <div class="flex items-center justify-between gap-3">
       <div>
         <h1 class="text-xl font-semibold">{{ t('finance.title') }}</h1>
-        <p class="text-sm text-gray-500 dark:text-gray-400">{{ t('finance.transactionsCount', { count: store.transactionsTotalCount }) }}</p>
+        <p class="text-sm text-gray-600 dark:text-gray-400">{{ t('finance.transactionsCount', { count: store.transactionsTotalCount }) }}</p>
       </div>
       <NButton v-can="'erp.finance.create'" type="primary" class="min-h-11" @click="openCreateModal">
         <template #icon><NIcon><Plus /></NIcon></template>
@@ -233,15 +233,15 @@ function submitCreate() {
 
     <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
       <div class="rounded-xl border border-surface-border bg-surface-0 p-4 dark:border-surface-dark-border dark:bg-surface-dark-100">
-        <div class="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400"><NIcon class="text-success"><ArrowUpRight /></NIcon>{{ t('finance.totalIncome') }}</div>
+        <div class="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400"><NIcon class="text-success"><ArrowUpRight /></NIcon>{{ t('finance.totalIncome') }}</div>
         <p class="mt-1 text-xl font-semibold tabular-nums">{{ formatCurrency(store.totalIncomeMinorUnits) }}</p>
       </div>
       <div class="rounded-xl border border-surface-border bg-surface-0 p-4 dark:border-surface-dark-border dark:bg-surface-dark-100">
-        <div class="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400"><NIcon class="text-error"><ArrowDownRight /></NIcon>{{ t('finance.totalExpense') }}</div>
+        <div class="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400"><NIcon class="text-error"><ArrowDownRight /></NIcon>{{ t('finance.totalExpense') }}</div>
         <p class="mt-1 text-xl font-semibold tabular-nums">{{ formatCurrency(store.totalExpenseMinorUnits) }}</p>
       </div>
       <div class="rounded-xl border border-surface-border bg-surface-0 p-4 dark:border-surface-dark-border dark:bg-surface-dark-100">
-        <div class="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400"><NIcon><Scale /></NIcon>{{ t('finance.netProfit') }}</div>
+        <div class="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400"><NIcon><Scale /></NIcon>{{ t('finance.netProfit') }}</div>
         <p class="mt-1 text-xl font-semibold tabular-nums" :class="store.netProfitMinorUnits >= 0 ? 'text-success' : 'text-error'">
           {{ formatCurrency(store.netProfitMinorUnits) }}
         </p>
@@ -277,7 +277,7 @@ function submitCreate() {
     </div>
 
     <div v-else class="min-h-0 flex-1 overflow-y-auto">
-      <div v-if="store.paginatedTransactions.length === 0" class="py-12 text-center text-sm text-gray-500 dark:text-gray-400">{{ t('finance.noMatch') }}</div>
+      <div v-if="store.paginatedTransactions.length === 0" class="py-12 text-center text-sm text-gray-600 dark:text-gray-400">{{ t('finance.noMatch') }}</div>
       <div v-else class="flex flex-col gap-3 pb-4">
         <NCard v-for="txn in store.paginatedTransactions" :key="txn.id" size="small" :bordered="true" content-style="padding: 14px;">
           <div class="flex items-start justify-between gap-3">
@@ -285,7 +285,7 @@ function submitCreate() {
               <NIcon :class="txn.type === 'income' ? 'text-success' : 'text-error'"><component :is="txn.type === 'income' ? ArrowUpRight : ArrowDownRight" /></NIcon>
               <div class="min-w-0">
                 <p class="truncate text-sm font-semibold">{{ txn.description }}</p>
-                <p class="truncate text-xs text-gray-500 dark:text-gray-400">{{ categoryLabel(txn.category) }}</p>
+                <p class="truncate text-xs text-gray-600 dark:text-gray-400">{{ categoryLabel(txn.category) }}</p>
               </div>
             </div>
             <NTag :type="statusTagType(txn.status)" size="small" round class="shrink-0">{{ statusLabel(txn.status) }}</NTag>
@@ -294,7 +294,7 @@ function submitCreate() {
             <span class="text-base font-semibold tabular-nums" :class="txn.type === 'income' ? 'text-success' : 'text-error'">
               {{ txn.type === 'income' ? '+' : '-' }}{{ formatCurrency(txn.amountMinorUnits) }}
             </span>
-            <span class="text-xs text-gray-500 dark:text-gray-400">{{ dateFormatter.format(new Date(txn.date)) }}</span>
+            <span class="text-xs text-gray-600 dark:text-gray-400">{{ dateFormatter.format(new Date(txn.date)) }}</span>
           </div>
           <div class="mt-3 flex items-center justify-end gap-2 border-t border-surface-border pt-3 dark:border-surface-dark-border">
             <NPopconfirm @positive-click="() => handleDelete(txn)">

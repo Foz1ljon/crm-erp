@@ -5,6 +5,17 @@ export interface GroqMessage {
   text: string
 }
 
+/** Carries the HTTP status so callers can tell a bad key from an outage. */
+export class GroqRequestError extends Error {
+  constructor(
+    message: string,
+    readonly status: number,
+  ) {
+    super(message)
+    this.name = 'GroqRequestError'
+  }
+}
+
 const GROQ_MODEL = 'openai/gpt-oss-120b'
 const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions'
 
@@ -46,7 +57,7 @@ export async function askGroqStream(
   if (!response.ok || !response.body) {
     const errorBody = await response.json().catch(() => null)
     const message = errorBody?.error?.message ?? i18n.global.t('ai.requestFailedError', { status: response.status })
-    throw new Error(message)
+    throw new GroqRequestError(message, response.status)
   }
 
   const reader = response.body.getReader()
