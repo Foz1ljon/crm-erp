@@ -1,0 +1,93 @@
+/*
+ * Tailwind v4 is imported WITHOUT `tailwindcss/preflight.css`.
+ * Naive UI ships its own CSS reset scoped to its components; Tailwind's
+ * preflight (which rewrites button/input/h1..h6 defaults globally) would
+ * fight it. We keep `theme` (design tokens -> utility generation) and
+ * `utilities` (the actual utility classes), and skip `preflight` entirely.
+ */
+@import 'tailwindcss/theme.css' layer(theme);
+@import 'tailwindcss/utilities.css' layer(utilities);
+
+/*
+ * Dark mode strategy: class-based, driven by `.dark` on <html>.
+ * `useTheme()` (src/core/composables/useTheme.ts) toggles this class AND
+ * swaps the Naive UI `darkTheme` object on NConfigProvider in lockstep, so
+ * Tailwind utilities and Naive UI components always agree on the mode.
+ */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/*
+ * Design tokens. These values are mirrored in
+ * src/core/theme/tokens.ts, which feeds Naive UI's `themeOverrides`.
+ * Keep the two in sync — this file drives Tailwind utility generation,
+ * tokens.ts drives Naive UI component theming. They must render as the
+ * same visual system.
+ */
+@theme {
+  --font-sans:
+    'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  /* Brand / primary */
+  --color-brand-50: #eff6ff;
+  --color-brand-100: #dbeafe;
+  --color-brand-200: #bfdbfe;
+  --color-brand-300: #93c5fd;
+  --color-brand-400: #60a5fa;
+  --color-brand-500: #3b82f6;
+  --color-brand-600: #2563eb;
+  --color-brand-700: #1d4ed8;
+  --color-brand-800: #1e40af;
+  --color-brand-900: #1e3a8a;
+
+  /* Semantic status colors (shared with Naive UI success/warning/error/info) */
+  --color-success: #18a058;
+  --color-warning: #f0a020;
+  --color-error: #d03050;
+  --color-info: #2080f0;
+
+  /* Neutral surface scale (light) */
+  --color-surface-0: #ffffff;
+  --color-surface-50: #f8fafc;
+  --color-surface-100: #f1f5f9;
+  --color-surface-200: #e2e8f0;
+  --color-surface-border: #e2e8f0;
+
+  /* Neutral surface scale (dark) */
+  --color-surface-dark-0: #101014;
+  --color-surface-dark-50: #18181c;
+  --color-surface-dark-100: #202024;
+  --color-surface-dark-200: #2a2a30;
+  --color-surface-dark-border: #303038;
+
+  /* Density-aware spacing scale (enterprise/dashboard default: standard density) */
+  --spacing-gutter-mobile: 1rem;
+  --spacing-gutter-desktop: 1.5rem;
+
+  /* Breakpoints kept explicit so useBreakpoints() (@vueuse/core) and Tailwind agree */
+  --breakpoint-xs: 30rem; /* 480px */
+  --breakpoint-sm: 40rem; /* 640px */
+  --breakpoint-md: 48rem; /* 768px */
+  --breakpoint-lg: 64rem; /* 1024px */
+  --breakpoint-xl: 80rem; /* 1280px */
+}
+
+html,
+body,
+#app {
+  height: 100%;
+}
+
+body {
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  background-color: var(--color-surface-50);
+  color: #18181c;
+}
+
+html.dark body {
+  background-color: var(--color-surface-dark-50);
+  color: #e2e2e6;
+}
+
+/* Naive UI's own reset already normalizes buttons/inputs/etc — this file
+   intentionally adds nothing further to the global element scope. */
